@@ -1,0 +1,27 @@
+name: Smash
+version: 1.0
+main: com.brandonjja.smash.Smash
+author: Brandonjja
+description: McPVP Super Smash Recoded
+commands:
+    kit:
+        usage: /kit <kitName>
+        description: Gives the player a kit
+    kits:
+        usage: /kits <kitName>
+        description: Gives the player a kit
+    speed:
+        usage: /speed <1-10>
+        description: Changes your fly speed
+    world:
+        usage: /world
+        description: Displays the world name
+    start:
+        usage: /start
+        description: Starts the Smash game
+    tpw:
+        usage: /tpw <worldName>
+        description: Teleports to a specific world. Generates a new world if name doesn't exist
+    end:
+        usage: /end
+        description: Forcibly ends the Smash game
