@@ -1,4 +1,4 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,7 +16,7 @@ import com.brandonjja.smash.SmashCore;
 import com.brandonjja.smash.game.Game;
 import com.brandonjja.smash.game.ScoreboardManager;
 import com.brandonjja.smash.game.SmashPlayer;
-import com.brandonjja.smash.kits.classes.Jiggly;
+import com.brandonjja.smash.kits.classes.Jigglyo;
 import com.brandonjja.smash.kits.classes.Pika;
 import com.brandonjja.smash.kits.classes.Shadow;
 import com.brandonjja.smash.kits.classes.Toshi;
@@ -27,26 +27,31 @@ public class PlayerMoveListener implements Listener {
 	
 	private final static double JUMPVEL = (double) 0.42F;
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e) {
 		Player player = e.getPlayer();
 		SmashPlayer smashPlayer = SmashCore.players.get(player);
-		if (e.isSneaking() && smashPlayer.getKit() instanceof Jiggly) {
-			Jiggly kit = (Jiggly) smashPlayer.getKit();
+		if (e.isSneaking() && smashPlayer.getKit() instanceof Jigglyo && player.isOnGround()) {
+			Jigglyo kit = (Jigglyo) smashPlayer.getKit();
 			int time = Bukkit.getScheduler().scheduleSyncRepeatingTask(Smash.getInstance(), new Runnable() {
 				@Override
 				public void run() {
 					if (player.getLevel() >= 2) {
-						player.setLevel(player.getLevel() - 1);
-						ScoreboardManager.updateKB(player);
+						if (!player.isOnGround()) {
+							((Jigglyo)smashPlayer.getKit()).cancelSneakTimer();
+						} else {
+							player.setLevel(player.getLevel() - 1);
+							ScoreboardManager.updateKB(player);
+						}
 					} else {
 						player.setLevel(1);
 					}
 				}
 			}, 10L, 10L); // 0 Tick initial delay, 20 * x seconds between repeats
 			kit.setSneakTimer(time);
-		} else if (!e.isSneaking() && smashPlayer.getKit() instanceof Jiggly) {
-			((Jiggly)smashPlayer.getKit()).cancelSneakTimer();
+		} else if (!e.isSneaking() && smashPlayer.getKit() instanceof Jigglyo) {
+			((Jigglyo)smashPlayer.getKit()).cancelSneakTimer();
 		}
 	}
 	
@@ -81,6 +86,8 @@ public class PlayerMoveListener implements Listener {
 			if (Game.getWin()) {
 				return;
 			}
+			
+			p.cancelHammerCooldown();
 			
 			Game.checkEndGame();
 		}

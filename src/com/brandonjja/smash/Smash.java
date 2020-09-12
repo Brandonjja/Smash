@@ -14,6 +14,7 @@ public class Smash extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		INSTANCE = null;
+		SmashCore.shutdown();
 	}
 	
 	public static Smash getInstance() {

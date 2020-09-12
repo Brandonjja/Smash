@@ -87,7 +87,7 @@ public class Blink extends Kit {
 	public ItemStack getHelmet() {
 		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
 		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Blink Helment");
+		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
 		meta.setColor(Color.LIME);
 		helmet.setItemMeta(meta);
 		

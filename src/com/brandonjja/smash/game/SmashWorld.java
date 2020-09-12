@@ -3,6 +3,7 @@ package com.brandonjja.smash.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -31,6 +32,9 @@ public class SmashWorld {
 		slabLoc = new ArrayList<Location>();
 		
 		World world = Bukkit.getWorld(SmashCore.currentMap);
+		
+		world.setStorm(false);
+		world.setThundering(false);
 		
 		long time = System.currentTimeMillis();
 		for (Chunk chunk : world.getLoadedChunks()) {
@@ -130,9 +134,9 @@ public class SmashWorld {
 	// Update ItemPickUpListener
 	// Update PlayerInteractListener
 	
-	@SuppressWarnings("unused")
 	private static ItemStack randomItem() {
 		List<ItemStack> items = new ArrayList<>();
+		TreeMap<Integer, ItemStack> map = new TreeMap<>();
 		ItemMeta meta;
 		
 		Random r = new Random();
@@ -151,7 +155,17 @@ public class SmashWorld {
 		ItemStack landMine = new ItemStack(Material.STONE_PLATE);
 		ItemStack tnt = new ItemStack(Material.TNT);
 		
-		/*items.add(hammer);
+		map.put(1, hammer);
+		map.put(5, feather);
+		map.put(3, apple);
+		map.put(2, gApple);
+		map.put(4, bat);
+		map.put(6, landMine);
+		map.put(7, tnt);
+		
+		
+		
+		items.add(hammer);
 		
 		items.add(feather);
 		items.add(feather);
@@ -161,14 +175,14 @@ public class SmashWorld {
 		items.add(apple);
 		items.add(apple);
 		
-		items.add(gApple);*/
+		items.add(gApple);
 		
 		items.add(bat);
 		items.add(bat);
 		
 		items.add(landMine);
 		items.add(landMine);
-		/*items.add(landMine);
+		items.add(landMine);
 		items.add(landMine);
 		
 		items.add(tnt);
@@ -176,7 +190,7 @@ public class SmashWorld {
 		items.add(tnt);
 		items.add(tnt);
 		items.add(tnt);
-		items.add(tnt);*/
+		items.add(tnt);
 		
 		return items.get(r.nextInt(items.size()));
 	}

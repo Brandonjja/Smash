@@ -1,8 +1,7 @@
 package com.brandonjja.smash.game;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -16,7 +15,8 @@ import com.brandonjja.smash.Smash;
 import com.brandonjja.smash.SmashCore;
 import com.brandonjja.smash.kits.Kit;
 import com.brandonjja.smash.kits.classes.Blink;
-import com.brandonjja.smash.kits.classes.Jiggly;
+import com.brandonjja.smash.kits.classes.Jigglyo;
+import com.brandonjja.smash.kits.classes.Shadow;
 
 public class SmashPlayer {
 	private Kit kit;
@@ -24,7 +24,8 @@ public class SmashPlayer {
 	private String weapon = null;
 	private boolean firstJump = true;
 	public Map<Integer, ItemStack> inventorySlot;
-	private List<Material> kitItems;
+	//private List<Material> kitItems;
+	private int hammerCooldown;
 	
 	private Player lastPlayerToHit = null; // the player that hit you last
 	// set this player from entity attack (the attacker)
@@ -38,13 +39,13 @@ public class SmashPlayer {
 	public SmashPlayer(Player player) {
 		this.player = player;
 		this.kit = new Blink();
-		this.addKitItems();
+		//this.addKitItems();
 		this.giveKitItems();
 	}
 	
-	private void addKitItems() {
+	/*private void addKitItems() {
 		kitItems = new ArrayList<>();
-		kitItems.add(Material.IRON_AXE);
+		kitItems.add(Material.STONE_AXE);
 		kitItems.add(Material.IRON_SWORD);
 		kitItems.add(Material.FIREWORK);
 		kitItems.add(Material.BOW);
@@ -55,7 +56,7 @@ public class SmashPlayer {
 		kitItems.add(Material.WOOD_AXE);
 		kitItems.add(Material.CLAY_BRICK);
 		kitItems.add(Material.MONSTER_EGG);
-	}
+	}*/
 	
 	public boolean getFirstJump() {
 		return firstJump;
@@ -101,10 +102,10 @@ public class SmashPlayer {
 		if (jumpsLeft == kit.getJumps() - 1) {
 			firstJump = true;
 		}
-		if (kit instanceof Jiggly) {
-			player.setExp(player.getExp() - (1 / (float) ( ((Jiggly)kit).getJumps() + 5)) );
+		if (kit instanceof Jigglyo) {
+			player.setExp(player.getExp() - (1 / (float) ( ((Jigglyo)kit).getJumps() + 5)) );
 			firstJump = true;
-			if (((Jiggly)kit).getMiniJumps() == 0) {
+			if (((Jigglyo)kit).getMiniJumps() == 0) {
 				player.setExp(0f);
 			}
 			return;
@@ -122,8 +123,8 @@ public class SmashPlayer {
 	public void resetJumps() {
 		jumpsLeft = kit.getJumps();
 		player.setExp(0.99f);
-		if (kit instanceof Jiggly) {
-			((Jiggly) kit).resetMiniJumps();
+		if (kit instanceof Jigglyo) {
+			((Jigglyo) kit).resetMiniJumps();
 		}
 	}
 	
@@ -149,10 +150,35 @@ public class SmashPlayer {
 	
 	public void saveInventory() {
 		inventory = player.getInventory().getContents();
+		/*boolean contains = false;
+		for (int key : inventorySlot.keySet()) {
+			for (int i = 0; i < inventory.length; i++) {
+				if (inventorySlot.get(key).getType() == inventory[i].getType()) {
+					contains = true;
+					break;
+				}
+			}
+			if (!contains) {
+				inventory = new ItemStack[inventory.length + 1];
+				
+			}
+		}*/
 	}
 	
 	public ItemStack[] getInventory() {
 		return inventory;
+	}
+	
+	public void addMissingItemsAfterHammer() {
+		//for (ItemStack item : inventorySlot.values()) {
+		for (ItemStack item : kit.getItems()) {
+			if (!player.getInventory().contains(item.getType())) {
+				item.setAmount(1);
+				player.getInventory().addItem(item);
+				player.sendMessage("added " + item.getType());
+			}
+		}
+		player.updateInventory();
 	}
 	
 	public void setInventoryMap() {
@@ -179,7 +205,17 @@ public class SmashPlayer {
 			if (item == null) {
 				continue;
 			}
-			if (kitItems.contains(item.getType())) {
+			//if (kitItems.contains(item.getType())) {
+			if (item.getType() != Material.MONSTER_EGG) {
+				item.setDurability((short) 0);
+			}
+			if (Arrays.asList(kit.getItems()).contains(item)) {
+				//player.sendMessage("contains " + item.getType().toString() + item.getDurability());
+				
+			//if ()
+				if (item.getType() == Material.IRON_AXE && !(kit instanceof Shadow)) {
+					return;
+				}
 				inventorySlot.put(i, item);
 			}
 		}
@@ -215,10 +251,22 @@ public class SmashPlayer {
 		return 35;
 	}
 	
+	public void cancelHammerCooldown() {
+		Bukkit.getScheduler().cancelTask(hammerCooldown);
+		hammerCooldown = -1;
+	}
+	
+	public void setHammerCooldown(int hammerCooldown) {
+		this.hammerCooldown = hammerCooldown;
+	}
+	
 	public void runItemTimer(Material material, String itemName, int time, int slot) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
 			@Override
 			public void run() {
+				if (player.getInventory().contains(Material.IRON_AXE)) {
+					return;
+				}
 				ItemStack item = new ItemStack(material, 1);
 				ItemMeta meta = item.getItemMeta();
 				meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + itemName);

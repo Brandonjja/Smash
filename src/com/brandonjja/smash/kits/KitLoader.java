@@ -1,7 +1,7 @@
 package com.brandonjja.smash.kits;
 
 import com.brandonjja.smash.kits.classes.Blink;
-import com.brandonjja.smash.kits.classes.Jiggly;
+import com.brandonjja.smash.kits.classes.Jigglyo;
 import com.brandonjja.smash.kits.classes.Metoo;
 import com.brandonjja.smash.kits.classes.Pika;
 import com.brandonjja.smash.kits.classes.Shadow;
@@ -14,6 +14,6 @@ public class KitLoader {
 		Pika.load();
 		Toshi.load();
 		Shadow.load();
-		Jiggly.load();
+		Jigglyo.load();
 	}
 }

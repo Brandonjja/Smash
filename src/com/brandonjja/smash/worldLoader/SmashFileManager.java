@@ -220,4 +220,49 @@ public class SmashFileManager {
 		}
 		Game.startGame();
 	}
+	
+public static void generateMap(String map) {
+		
+		for (Player pl : Bukkit.getOnlinePlayers()) {
+			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading Game Map...");
+		}
+		
+		ScoreboardManager.newBoard();
+		
+		//
+		String w = Bukkit.getWorldContainer().getAbsolutePath();
+		char charArr[] = w.toCharArray();
+		String path = "";
+		for (char cc : charArr) {
+			if (cc == '.') {
+				continue;
+			} else if (cc == '\\') {
+				cc = '/';
+			}
+			path += cc;
+		}
+		String oldWorld = path + map;
+		
+		//String world2 = "C:/Users/ASUS/Desktop/Server/" + name + "2";
+		String world2 = path + map + "2";
+		File src2 = new File(oldWorld);
+		File des2 = new File(world2);
+		
+		SmashCore.currentMap = map + "2";
+		
+		copyWorld(src2, des2);
+		//
+		
+		//Player first = null;
+		
+		Bukkit.createWorld(new WorldCreator(SmashCore.currentMap));
+		World world = Bukkit.getWorld(SmashCore.currentMap);
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			p.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
+			// = p;
+			ScoreboardManager.giveScoreboard(p);
+			//p.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
+		}
+		Game.startGame();
+	}
 }

@@ -15,17 +15,16 @@ import com.brandonjja.smash.kits.Kit;
 
 import net.md_5.bungee.api.ChatColor;
 
-public class Jiggly extends Kit {
+public class Jigglyo extends Kit {
 	private static List<ItemStack> items;
 	private int miniJumps;
 	private int sneakTimer;
 	
-	public Jiggly() {
-		super("Jiggly", 1);
+	public Jigglyo() {
+		super("Jigglyo", 1);
 		miniJumps = 5;
 		sneakTimer = -1;
 	}
-
 	@Override
 	public String getName() {
 		return super.name;
@@ -58,7 +57,7 @@ public class Jiggly extends Kit {
 	public ItemStack getHelmet() {
 		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
 		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Jiggly Helment");
+		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
 		meta.setColor(Color.fromRGB(255, 182, 193)); // PINK
 		helmet.setItemMeta(meta);
 		
@@ -88,7 +87,10 @@ public class Jiggly extends Kit {
 	}
 	
 	public void cancelSneakTimer() {
-		Bukkit.getScheduler().cancelTask(sneakTimer);
+		if (sneakTimer != -1) {
+			Bukkit.getScheduler().cancelTask(sneakTimer);
+		}
+		sneakTimer = -1;
 	}
 
 	@Override

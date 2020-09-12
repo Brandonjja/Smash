@@ -1,6 +1,5 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.world;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,26 +12,26 @@ import org.bukkit.event.entity.ExplosionPrimeEvent;
 public class BlockExplodeListener implements Listener {
 	
 	@EventHandler
-	public void onL(BlockExplodeEvent e) {
+	public void onBlockExplode(BlockExplodeEvent e) {
 		e.setCancelled(true);
-		Bukkit.getPlayer("Brandonjja").sendMessage("ev");
+		//Bukkit.getPlayer("Brandonjja").sendMessage("ev");
 	}
 	
 	@EventHandler
-	public void onL2(ExplosionPrimeEvent e) {
+	public void onExplosionPrime(ExplosionPrimeEvent e) {
 		e.setCancelled(true);
 		Location loc = e.getEntity().getLocation();
 		e.getEntity().getWorld().createExplosion(loc.getX(), loc.getY(), loc.getZ(), 2, false, false);
 	}
 	
 	@EventHandler
-	public void onL3(EntityExplodeEvent e) {
-		Bukkit.getPlayer("Brandonjja").sendMessage("ev2");
+	public void onEntityExplode(EntityExplodeEvent e) {
+		//Bukkit.getPlayer("Brandonjja").sendMessage("ev2");
 		e.blockList().clear();
 	}
 	
 	@EventHandler
-	public void onFire(BlockIgniteEvent e) {
+	public void onIgnite(BlockIgniteEvent e) {
 		if (e.getCause() == IgniteCause.LIGHTNING) {
 			e.setCancelled(true);
 		}

@@ -18,11 +18,13 @@ public class Metoo extends Kit {
 	private static List<ItemStack> items;
 	private boolean pearlCooldown;
 	private boolean orbCooldown;
+	private boolean doTeleport;
 
 	public Metoo() {
 		super("Metoo", 2);
 		pearlCooldown = true;
 		orbCooldown = true;
+		doTeleport = true;
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class Metoo extends Kit {
 	public ItemStack getHelmet() {
 		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
 		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Metoo Helment");
+		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
 		meta.setColor(Color.BLUE);
 		helmet.setItemMeta(meta);
 		
@@ -102,5 +104,13 @@ public class Metoo extends Kit {
 		if (item == Material.SNOW_BALL) {
 			this.orbCooldown = cooldown;
 		}
+	}
+	
+	public void setTeleport(boolean doTeleport) {
+		this.doTeleport = doTeleport;
+	}
+	
+	public boolean canTeleport() {
+		return doTeleport;
 	}
 }

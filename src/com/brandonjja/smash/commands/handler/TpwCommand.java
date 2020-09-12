@@ -12,6 +12,9 @@ public class TpwCommand extends SmashCommand {
 
 	@Override
 	public boolean execute(Player player, String[] args) {
+		if (!player.isOp()) {
+			return false;
+		}
 		if (args.length >= 1) {
 			String name = "";
 			for (int i = 0; i < args.length; i++) {

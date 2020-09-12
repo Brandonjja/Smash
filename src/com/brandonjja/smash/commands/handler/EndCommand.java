@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import com.brandonjja.smash.commands.SmashCommand;
 import com.brandonjja.smash.game.Game;
 
-public class ReloadCommand extends SmashCommand {
+public class EndCommand extends SmashCommand {
 
 	@Override
 	public boolean execute(Player player, String[] args) {

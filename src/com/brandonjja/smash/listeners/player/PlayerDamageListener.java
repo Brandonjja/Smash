@@ -1,4 +1,4 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -259,6 +259,23 @@ public class PlayerDamageListener implements Listener {
 				player.sendMessage(ChatColor.GREEN + "You hit " + victim.getName() + " with your " + ChatColor.DARK_AQUA + "Psychic Orb" + ChatColor.GREEN + "!");
 				
 				smashVictim.setLastHitWeapon("Psychic Orb");
+				
+				
+				Location loc = new Location(victim.getWorld(), victim.getLocation().getX(), victim.getLocation().getY() + 1, victim.getLocation().getZ());
+				
+				Firework firework = (Firework) victim.getWorld().spawn(loc, Firework.class);
+				FireworkMeta meta = firework.getFireworkMeta();
+				meta.addEffect(FireworkEffect.builder().flicker(false).trail(false).with(Type.BALL).withColor(Color.PURPLE).build());
+				meta.setPower(0);
+				firework.setFireworkMeta(meta);
+				
+				new BukkitRunnable() {
+		            public void run() {
+		                firework.detonate();
+		            }
+		        }.runTaskLater(Smash.getInstance(), 1);
+				
+				
 			}
 		}
 		

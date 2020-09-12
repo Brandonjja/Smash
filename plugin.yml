@@ -25,3 +25,9 @@ commands:
     end:
         usage: /end
         description: Forcibly ends the Smash game
+    maps:
+        usage: /maps
+        description: Displays a list of all maps currently in rotation
+    setspawn:
+        usage: /setspawn
+        description: Sets the current world's spawn at the player's current location

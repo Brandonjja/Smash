@@ -1,4 +1,4 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.player;
 
 import java.util.logging.Level;
 
@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -29,7 +30,7 @@ public class PlayerConnectionListener implements Listener {
 			if (!player.getWorld().getName().equalsIgnoreCase("lobby2")) {
 				try {
 					World w = Bukkit.getWorld("lobby2");
-					player.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
+					player.teleport(new Location(w, w.getSpawnLocation().getX() + 0.5, w.getSpawnLocation().getY(), w.getSpawnLocation().getZ() + 0.5, 90, 0));
 					SmashCore.currentMap = "lobby2";
 				} catch (NullPointerException ex) {
 
@@ -43,6 +44,10 @@ public class PlayerConnectionListener implements Listener {
 					World w = SmashFileManager.createLobby();
 					player.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
 				}
+				player.setGameMode(GameMode.SURVIVAL);
+			} else {
+				World w = Bukkit.getWorld("lobby2");
+				player.teleport(new Location(w, w.getSpawnLocation().getX() + 0.5, w.getSpawnLocation().getY(), w.getSpawnLocation().getZ() + 0.5, 90, 0));
 			}
 		} else {
 			World w = Bukkit.getWorld(SmashCore.currentMap);
@@ -67,5 +72,27 @@ public class PlayerConnectionListener implements Listener {
 		e.setQuitMessage(ChatColor.RED + player.getName() + " quit!");
 		
 		SmashCore.players.remove(player);
+	}
+	
+	@EventHandler
+	public void onPlayerLobby(PlayerChangedWorldEvent e) {
+		Player player = e.getPlayer();
+		
+		if (player.getWorld().getName().equalsIgnoreCase("lobby2") && !e.getFrom().getName().equalsIgnoreCase("lobby2")) {
+			World world = player.getWorld();
+			Location loc = world.getSpawnLocation();
+			player.teleport(new Location(world, loc.getBlockX() + 0.5, loc.getBlockY(), loc.getBlockZ() + 0.5, 90, 0));
+		}
+		
+		/*e.get
+		String toWorld = e.getTo().getWorld().getName();
+		String oldWorld = e.getFrom().getWorld().getName();
+		if (e.getCause() == TeleportCause.PLUGIN && toWorld.equalsIgnoreCase("lobby2") && !oldWorld.equalsIgnoreCase("lobby2") && !oldWorld.equalsIgnoreCase("lobby")) {
+			World world = Bukkit.getWorld("lobby2");
+			Location loc = world.getSpawnLocation();
+			player.teleport(new Location(world, loc.getBlockX() + 0.5, loc.getBlockY(), loc.getBlockZ() - 0.5, 90, 0), TeleportCause.UNKNOWN);
+			//player.getLocation().setYaw(90); // Face west
+			//player.set
+		}*/
 	}
 }

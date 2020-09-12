@@ -47,7 +47,7 @@ public class Toshi extends Kit {
 		ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
 		ItemStack rocket = new ItemStack(Material.FIREWORK);
 		ItemStack brick = new ItemStack(Material.CLAY_BRICK);
-		ItemStack egg = new ItemStack(Material.MONSTER_EGG, 1, (short) 50);
+		ItemStack egg = new ItemStack(Material.MONSTER_EGG, 1, (byte) 50);
 
 		ItemMeta meta = ironSword.getItemMeta();
 		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Sword");
@@ -76,7 +76,7 @@ public class Toshi extends Kit {
 	public ItemStack getHelmet() {
 		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
 		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Toshi Helment");
+		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
 		meta.setColor(Color.GREEN);
 		helmet.setItemMeta(meta);
 		

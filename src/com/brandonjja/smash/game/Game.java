@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import com.brandonjja.smash.Smash;
 import com.brandonjja.smash.SmashCore;
+import com.brandonjja.smash.worldLoader.Maps;
 import com.brandonjja.smash.worldLoader.SmashFileManager;
 
 import net.md_5.bungee.api.ChatColor;
@@ -22,6 +23,8 @@ public class Game {
 	private final static int pointsNeeded = 5;
 	private static boolean win = false;
 	private static boolean playing = false;
+	
+	private static int itemSpawnDelay = 40; // Time between new items spawning around the map (seconds)
 	
 	private static int loopID = -1;
 	
@@ -34,8 +37,19 @@ public class Game {
 		SmashWorld.updateBlocks();
 		
 		for (Player pl : Bukkit.getOnlinePlayers()) {
+			
+			String mapName = pl.getWorld().getName().split("2")[0]; // Map names in the form of Name2, world2, etc.
+			
+			List<String> mapsList = new ArrayList<>(Maps.getMaps());
+			for (String map : mapsList) {
+				if (map.equalsIgnoreCase(mapName)) {
+					mapName = map; // Used to get proper capitalization of a map
+				}
+			}
+			
 			pl.setGameMode(GameMode.ADVENTURE);
 			//pl.sendMessage(ChatColor.GRAY + "You're playing on " + ChatColor.AQUA + "mapName");
+			pl.sendMessage(ChatColor.GRAY + "You are playing on " + ChatColor.AQUA + mapName + ChatColor.GRAY + "!");
 			pl.sendMessage(ChatColor.LIGHT_PURPLE + "Game starting in 5 seconds!");
 			
 			/*pl.getInventory().clear();
@@ -76,7 +90,7 @@ public class Game {
 				SmashWorld.spawnItem();
 				fixSlabs();
 			}
-		}, 0L, 20L * 4); // 0 Tick initial delay, 20 * x seconds between repeats
+		}, 20L * 10, 20L * itemSpawnDelay); // 0 Tick initial delay, 20 * x seconds between repeats
 	}
 	
 	private static void fixSlabs() {
@@ -172,7 +186,8 @@ public class Game {
 		for (Player pl : Bukkit.getOnlinePlayers()) {
 			//pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
 			SmashCore.players.get(pl).giveKitItems();
-			pl.setGameMode(GameMode.ADVENTURE);
+			SmashCore.players.get(pl).setLastHitFrom(null);
+			pl.setGameMode(GameMode.SURVIVAL);
 			pl.sendMessage(ChatColor.GOLD + "Game finished!");
 			if (winners.size() == 1) {
 				pl.sendMessage(ChatColor.GOLD + winners.get(0).getName() + " wins with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!");
@@ -194,6 +209,10 @@ public class Game {
 				deleteMap();
 				SmashCore.currentMap = "lobby2";
 				win = false;
+				for (Player pl : Bukkit.getOnlinePlayers()) {
+					pl.setLevel(1);
+					ScoreboardManager.updateKB(pl);
+				}
 			}
 
 		}, 20 * 8); // 20 Ticks * x seconds = Starts in x seconds
@@ -208,9 +227,11 @@ public class Game {
 			pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
 			pl.updateInventory();*/
 			SmashCore.players.get(pl).giveKitItems();
-			pl.setGameMode(GameMode.ADVENTURE);
+			SmashCore.players.get(pl).setLastHitFrom(null);
+			pl.setGameMode(GameMode.SURVIVAL);
 			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.GOLD + "Game force ended");
 			pl.setLevel(1);
+			ScoreboardManager.updateKB(pl);
 		}
 		
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
@@ -222,6 +243,7 @@ public class Game {
 				deleteMap(map);
 				SmashCore.currentMap = "lobby2";
 				win = false;
+				
 			}
 
 		}, 20); // 20 Ticks * x seconds = Starts in x seconds

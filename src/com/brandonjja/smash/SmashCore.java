@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 
 import com.brandonjja.smash.commands.CommandManager;
@@ -20,12 +19,13 @@ public class SmashCore {
 	public static Map<Player, SmashPlayer> players = new HashMap<>();
 	public static String currentMap;
 	
-	private static String commands[] = {"kit", "kits", "speed", "world", "start", "tpw", "end"
-			};
+	/*private static String commands[] = {"kit", "kits", "speed", "world", "start", "tpw", "end", "maps"
+			};*/
 	
 	protected static void init() {
 		KitLoader.init();
-		registerCommands();
+		
+		CommandManager.registerCommands();
 		EventManager.registerListeners();
 		
 		for (Player pl : Bukkit.getOnlinePlayers()) {
@@ -37,7 +37,13 @@ public class SmashCore {
 		
 	}
 	
-	private static void registerCommands() {
+	protected static void shutdown() {
+		for (Player pl : Bukkit.getOnlinePlayers()) {
+			SmashCore.players.remove(pl);
+		}
+	}
+	
+	/*private static void registerCommands() {
 		
 		for (String s : commands) {
 			register(s, new CommandManager());
@@ -48,12 +54,13 @@ public class SmashCore {
 		register("world", new CommandManager());
 		register("start", new CommandManager());
 		register("tpw", new CommandManager());*/
-		for (Player pl : Bukkit.getOnlinePlayers()) {
+		
+	/*for (Player pl : Bukkit.getOnlinePlayers()) {
 			players.remove(pl);
 		}
 	}
 	
 	private static void register(String label, CommandExecutor command) {
 		Bukkit.getPluginCommand(label).setExecutor(command);
-	}
+	}*/
 }

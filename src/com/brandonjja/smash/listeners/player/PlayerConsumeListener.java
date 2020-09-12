@@ -1,4 +1,4 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.player;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

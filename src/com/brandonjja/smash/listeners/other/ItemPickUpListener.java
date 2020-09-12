@@ -1,4 +1,4 @@
-package com.brandonjja.smash.listeners;
+package com.brandonjja.smash.listeners.other;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -27,14 +27,20 @@ public class ItemPickUpListener implements Listener {
 		//List<Block> safe = new ArrayList<>();
 		
 		//if (loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockY()));
+		
+		if (player.getInventory().contains(Material.IRON_AXE)) {
+			e.setCancelled(true);
+			return;
+		}
+		
 		if (loc.getWorld().getBlockAt(loc).getType() == Material.STEP) {
 			
-			if (item.getItemStack().getType() == Material.IRON_AXE) {
+			/*if (item.getItemStack().getType() == Material.IRON_AXE) {
 				if (player.getInventory().contains(Material.IRON_AXE)) {
 					e.setCancelled(true);
 					return;
 				}
-			}
+			}*/
 			
 			loc.getWorld().getBlockAt(loc).setType(Material.AIR);
 		} else {
@@ -65,18 +71,21 @@ public class ItemPickUpListener implements Listener {
 			for (int i = 0; i < 8; i++) {
 				player.getInventory().addItem(item.getItemStack());
 			}
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
+			
+			int cooldown = Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
 				@Override
 				public void run() {
-					SmashPlayer p = SmashCore.players.get(player);
+					//SmashPlayer p = SmashCore.players.get(player);
 					player.getInventory().clear();
 					//player.getInventory().setContents(p.getKit().getItems());
-					player.getInventory().setContents(p.getInventory());
+					player.getInventory().setContents(smashPlayer.getInventory());
+					smashPlayer.addMissingItemsAfterHammer();
 					//player.getInventory().setHelmet(p.getKit().getHelmet());
 					player.updateInventory();
 				}
 
 			}, 20 * 5); // 20 Ticks * x seconds = Starts in x seconds
+			smashPlayer.setHammerCooldown(cooldown);
 		}
 		
 		// SWIFT FEATHER

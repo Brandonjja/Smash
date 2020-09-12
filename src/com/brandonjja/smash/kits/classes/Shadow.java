@@ -46,7 +46,7 @@ public class Shadow extends Kit {
 		ItemStack bow = new ItemStack(Material.BOW);
 		ItemStack snowball = new ItemStack(Material.SNOW_BALL);
 		ItemStack carrot = new ItemStack(Material.GOLDEN_CARROT);
-		ItemStack axe = new ItemStack(Material.IRON_AXE);
+		ItemStack axe = new ItemStack(Material.STONE_AXE);
 		ItemStack arrow = new ItemStack(Material.ARROW);
 
 		ItemMeta meta = axe.getItemMeta();
@@ -89,7 +89,7 @@ public class Shadow extends Kit {
 	public ItemStack getHelmet() {
 		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
 		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Shadow Helment");
+		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
 		meta.setColor(Color.BLACK);
 		helmet.setItemMeta(meta);
 		
