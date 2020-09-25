@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import com.brandonjja.smash.Smash;
+import com.brandonjja.smash.listeners.other.GiveCommandListener;
 import com.brandonjja.smash.listeners.other.ItemPickUpListener;
 import com.brandonjja.smash.listeners.other.SignClickListener;
 import com.brandonjja.smash.listeners.player.PlayerConnectionListener;
@@ -35,6 +36,8 @@ public class EventManager {
 		register(new SignClickListener());
 		
 		register(new WeatherListener());
+		
+		register(new GiveCommandListener());
 	}
 	
 	private static void register(Listener listener) {
