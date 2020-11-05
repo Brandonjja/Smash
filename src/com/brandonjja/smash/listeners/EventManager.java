@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import com.brandonjja.smash.Smash;
 import com.brandonjja.smash.listeners.other.GiveCommandListener;
 import com.brandonjja.smash.listeners.other.ItemPickUpListener;
+import com.brandonjja.smash.listeners.other.PearlListener;
 import com.brandonjja.smash.listeners.other.SignClickListener;
 import com.brandonjja.smash.listeners.player.PlayerConnectionListener;
 import com.brandonjja.smash.listeners.player.PlayerConsumeListener;
@@ -23,6 +24,7 @@ public class EventManager {
 		register(new BlockListener());
 		
 		register(new ItemPickUpListener());
+		register(new PearlListener());
 		
 		register(new PlayerConnectionListener());
 		register(new PlayerConsumeListener());
