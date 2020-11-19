@@ -28,18 +28,11 @@ public class Blink extends Kit {
 	}
 	
 	public ItemStack[] getItems() {
-		//return Arrays.fill(items);;
-		/*int size = items.size();
-		ItemStack arr[] = new ItemStack[size];
-		for (int i = 0; i < size; i++) {
-			arr[i] = items.get(i);
-		}*/
-		
 		return items.toArray(new ItemStack[0]);
-		//return arr;
 	}
 	
-	public static void load() {
+	// Kit items
+	static {
 		items = new ArrayList<>();
 		ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
 		ItemStack rocket = new ItemStack(Material.FIREWORK);

@@ -39,7 +39,8 @@ public class Shadow extends Kit {
 		return items.toArray(new ItemStack[0]);
 	}
 	
-	public static void load() {
+	// Kit items
+	static {
 		items = new ArrayList<>();
 		//ItemStack woodSword = new ItemStack(Material.WOOD_SWORD);
 		ItemStack rocket = new ItemStack(Material.FIREWORK);

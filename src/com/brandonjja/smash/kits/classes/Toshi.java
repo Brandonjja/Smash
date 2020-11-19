@@ -42,7 +42,8 @@ public class Toshi extends Kit {
 		return items.toArray(new ItemStack[0]);
 	}
 	
-	public static void load() {
+	// Kit items
+	static {
 		items = new ArrayList<>();
 		ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
 		ItemStack rocket = new ItemStack(Material.FIREWORK);
