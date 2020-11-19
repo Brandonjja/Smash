@@ -1,5 +1,8 @@
 package com.brandonjja.smash.commands.handler;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,16 +27,42 @@ public class TpwCommand extends SmashCommand {
 				}
 			}
 			name = name.toLowerCase();
+			String worldPath = getFilePath(name);
+			if (worldPath == null) {
+				player.sendMessage("Cannot find a world with the name: " + name);
+				return true;
+			}
 			try {
-			World w = Bukkit.getWorld(name);
-			player.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
+				World world = Bukkit.getWorld(worldPath);
+				player.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
 			} catch (NullPointerException ex) {
-				Bukkit.createWorld(new WorldCreator(name));
-				World w = Bukkit.getWorld(name);
-				player.teleport(new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ()));
+				World world = Bukkit.createWorld(new WorldCreator(worldPath));
+				player.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
 			}
 			return true;
 		}
 		return false;
+	}
+	
+	private String getFilePath(String name) {
+		File path = Bukkit.getWorldContainer();
+		for (File f : path.listFiles()) {
+			if (f.getName().equalsIgnoreCase(name)) {
+				return f.getName();
+			}
+		}
+		try {
+			String mapsPath = path.getCanonicalPath() + "/maps/";
+			File dir = new File(mapsPath);
+			for (File f : dir.listFiles()) {
+				if (f.getName().equalsIgnoreCase(name)) {
+					return f.getParentFile().getName() + "\\" + f.getName();
+				}
+			}
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
