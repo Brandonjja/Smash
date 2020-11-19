@@ -12,19 +12,20 @@ import java.util.Random;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
 
 import com.brandonjja.smash.Smash;
 import com.brandonjja.smash.SmashCore;
 import com.brandonjja.smash.game.Game;
 import com.brandonjja.smash.game.ScoreboardManager;
 
-import net.md_5.bungee.api.ChatColor;
-
 public class SmashFileManager {
+	
 	/** Unloads the world so that it can be deleted **/
 	public static void unloadWorld(World world) {
 		if (world != null) {
@@ -33,7 +34,7 @@ public class SmashFileManager {
 	}
 	
 	/** Deletes the world folder (entire world) **/
-	public static boolean deleteWorld(File path) {
+	public static void deleteWorld(File path) {
 		if (path.exists()) {
 			File files[] = path.listFiles();
 			for (int i = 0; i < files.length; i++) {
@@ -44,7 +45,6 @@ public class SmashFileManager {
 				}
 			}
 		}
-		return (path.delete());
 	}
 	
 	/** Copy a world to a new folder **/
@@ -62,14 +62,14 @@ public class SmashFileManager {
 						copyWorld(srcFile, destFile);
 					}
 				} else {
-					InputStream in = new FileInputStream(source);
-					OutputStream out = new FileOutputStream(target);
+					InputStream inputStream = new FileInputStream(source);
+					OutputStream outputStream = new FileOutputStream(target);
 					byte[] buffer = new byte[1024];
-					int length;
-					while ((length = in.read(buffer)) > 0)
-						out.write(buffer, 0, length);
-					in.close();
-					out.close();
+					int inStreamLength;
+					while ((inStreamLength = inputStream.read(buffer)) > 0)
+						outputStream.write(buffer, 0, inStreamLength);
+					inputStream.close();
+					outputStream.close();
 				}
 			}
 		} catch (IOException e) {
@@ -79,190 +79,105 @@ public class SmashFileManager {
 
 	/** Create a lobby2 world, which is a copy of the lobby **/
 	public static World createLobby() {
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading lobby...");
-		}
+		Bukkit.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading lobby...");
 		
-		// New code for lobby
-		String map = "lobby";
-		String pa = Bukkit.getWorldContainer().getAbsolutePath();
-		char charArr[] = pa.toCharArray();
-		String path = "";
-		for (char cc : charArr) {
-			if (cc == '.') {
-				continue;
-			} else if (cc == '\\') {
-				cc = '/';
-			}
-			path += cc;
-		}
-		String oldWorld = path + map;
-
-		String world2 = path + map + "2";
-		File src2 = new File(oldWorld);
-		File des2 = new File(world2);
-
-		copyWorld(src2, des2);
-
-		Bukkit.createWorld(new WorldCreator("lobby2"));
-		World w = Bukkit.getWorld("lobby2");
-		// New code for lobby END
+		String mapName = "lobby";
+		String path = formatAbsolutePath(Bukkit.getWorldContainer().getAbsolutePath());
 		
-		return w;
+		String oldWorld = path + mapName;
+		
+		path += mapName + "2";
+		
+		String newWorld = path;
+		File src = new File(oldWorld);
+		File des = new File(newWorld);
+
+		copyWorld(src, des);
+		
+		return Bukkit.createWorld(new WorldCreator("lobby2"));
 	}
 	
 	/** Create a lobby2 world, then teleports everyone **/
 	public static void createLobbyAndTeleport() {
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading lobby...");
-		}
-		
-		// New code for lobby
-		String map = "lobby";
-		String pa = Bukkit.getWorldContainer().getAbsolutePath();
-		char charArr[] = pa.toCharArray();
-		String path = "";
-		for (char cc : charArr) {
-			if (cc == '.') {
-				continue;
-			} else if (cc == '\\') {
-				cc = '/';
-			}
-			path += cc;
-		}
-		String oldWorld = path + map;
-
-		String world2 = path + map + "2";
-		File src2 = new File(oldWorld);
-		File des2 = new File(world2);
-
-		copyWorld(src2, des2);
-
-		Bukkit.createWorld(new WorldCreator("lobby2"));
-		World world = Bukkit.getWorld("lobby2");
-		// New code for lobby END
-		
-		//SmashCore.currentMap = "lobby2";
-		
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
-			// = p;
-			//ScoreboardManager.giveScoreboard(p);
-			p.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
+		World world = createLobby();
+		Location lobbySpawn = new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ());
+		Scoreboard blankScoreboard = Bukkit.getServer().getScoreboardManager().getNewScoreboard();
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.teleport(lobbySpawn);
+			player.setScoreboard(blankScoreboard);
 		}
 	}
 
 	/** Deletes lobby2 world **/
 	public static void deleteLobby() {
-		String name = "lobby2";
-		World delete = Bukkit.getWorld(name);
-		unloadWorld(delete);
+		World worldToDelete = Bukkit.getWorld("lobby2");
+		unloadWorld(worldToDelete);
 		File deleteFolder;
 		try {
-			deleteFolder = delete.getWorldFolder();
+			deleteFolder = worldToDelete.getWorldFolder();
 			deleteWorld(deleteFolder);
 		} catch (NullPointerException e) {
-			// Ignore because lobby doesn't exist, so no need to delete
-			Smash.getInstance().getLogger().log(Level.INFO, "==- Ignore this stack trace -==");
-			e.printStackTrace();
-			Smash.getInstance().getLogger().log(Level.INFO, "==- Ignore this stack trace -==");
+			Smash.getInstance().getLogger().log(Level.INFO, "Lobby world already deleted");
 			return;
 		}
-		deleteWorld(deleteFolder);
 	}
 	
+	/** Generates a new random map from the map list and teleports all players to it */
 	public static void generateMap() {
+		Random random = new Random();
+		int index = random.nextInt(Maps.getMaps().size());
 		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading Game Map...");
-		}
+		String mapName = Maps.getMaps().get(index);
+		
+		generateMap(mapName);
+	}
+	
+	/**
+	 * Generates a new random map from the map name and teleports all players to it
+	 * @param map The map name
+	 */
+	public static void generateMap(String map) {
+		Bukkit.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading Game Map...");
 		
 		ScoreboardManager.newBoard();
 		
-		Random r = new Random();
-		int index = r.nextInt(Maps.getMaps().size());
+		String path = formatAbsolutePath(Bukkit.getWorldContainer().getAbsolutePath());
 		
-		String map = Maps.getMaps().get(index);
+		String newWorld = path + map + "2";
+		File des = new File(newWorld);
 		
-		//
-		String w = Bukkit.getWorldContainer().getAbsolutePath();
-		char charArr[] = w.toCharArray();
-		String path = "";
-		for (char cc : charArr) {
-			if (cc == '.') {
-				continue;
-			} else if (cc == '\\') {
-				cc = '/';
-			}
-			path += cc;
-		}
-		String oldWorld = path + map;
-		
-		//String world2 = "C:/Users/ASUS/Desktop/Server/" + name + "2";
-		String world2 = path + map + "2";
-		File src2 = new File(oldWorld);
-		File des2 = new File(world2);
+		String oldWorld = path + "maps/" + map;
+		File src = new File(oldWorld);
 		
 		SmashCore.currentMap = map + "2";
 		
-		copyWorld(src2, des2);
-		//
+		copyWorld(src, des);
 		
-		//Player first = null;
-		
-		Bukkit.createWorld(new WorldCreator(SmashCore.currentMap));
-		World world = Bukkit.getWorld(SmashCore.currentMap);
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
-			// = p;
-			ScoreboardManager.giveScoreboard(p);
-			//p.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
+		World world = Bukkit.createWorld(new WorldCreator(SmashCore.currentMap));
+		Location spawnLocation = new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ());
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.teleport(spawnLocation);
+			ScoreboardManager.giveScoreboard(player);
 		}
 		Game.startGame();
 	}
 	
-public static void generateMap(String map) {
-		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.WHITE + "Loading Game Map...");
-		}
-		
-		ScoreboardManager.newBoard();
-		
-		//
-		String w = Bukkit.getWorldContainer().getAbsolutePath();
-		char charArr[] = w.toCharArray();
-		String path = "";
+	/**
+	 * 
+	 * @param absolutePath The path to format (ex. Bukkit.getWorldContainer().getAbsolutePath() )
+	 * @return Formatted path (C:\\Users formatted to C:/Users)
+	 */
+	private static String formatAbsolutePath(String absolutePath) {
+		char charArr[] = absolutePath.toCharArray();
+		StringBuilder path = new StringBuilder("");
 		for (char cc : charArr) {
 			if (cc == '.') {
 				continue;
 			} else if (cc == '\\') {
 				cc = '/';
 			}
-			path += cc;
+			path.append(cc);
 		}
-		String oldWorld = path + map;
-		
-		//String world2 = "C:/Users/ASUS/Desktop/Server/" + name + "2";
-		String world2 = path + map + "2";
-		File src2 = new File(oldWorld);
-		File des2 = new File(world2);
-		
-		SmashCore.currentMap = map + "2";
-		
-		copyWorld(src2, des2);
-		//
-		
-		//Player first = null;
-		
-		Bukkit.createWorld(new WorldCreator(SmashCore.currentMap));
-		World world = Bukkit.getWorld(SmashCore.currentMap);
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));
-			// = p;
-			ScoreboardManager.giveScoreboard(p);
-			//p.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
-		}
-		Game.startGame();
+		return path.toString();
 	}
 }
