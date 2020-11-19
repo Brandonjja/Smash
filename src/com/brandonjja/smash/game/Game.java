@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,8 +17,6 @@ import com.brandonjja.smash.Smash;
 import com.brandonjja.smash.SmashCore;
 import com.brandonjja.smash.worldLoader.Maps;
 import com.brandonjja.smash.worldLoader.SmashFileManager;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class Game {
 	private final static int pointsNeeded = 5;
@@ -33,53 +32,41 @@ public class Game {
 	}
 	
 	public static void startGame() {
-		
 		SmashWorld.updateBlocks();
 		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			
-			String mapName = pl.getWorld().getName().split("2")[0]; // Map names in the form of Name2, world2, etc.
-			
-			List<String> mapsList = new ArrayList<>(Maps.getMaps());
-			for (String map : mapsList) {
-				if (map.equalsIgnoreCase(mapName)) {
-					mapName = map; // Used to get proper capitalization of a map
-				}
+		String mapName = SmashCore.currentMap.split("2")[0]; // Map names in the form of Name2, world2, etc.
+		
+		List<String> mapsList = new ArrayList<>(Maps.getMaps());
+		for (String map : mapsList) {
+			if (map.equalsIgnoreCase(mapName)) {
+				mapName = map; // Used to get proper capitalization of a map
+				break;
 			}
-			
+		}
+		
+		final String gameStartMsg = ChatColor.GRAY + "You are playing on " + ChatColor.AQUA + mapName + ChatColor.GRAY + "!" + "\n" + ChatColor.LIGHT_PURPLE + "Game starting in 5 seconds!";
+		
+		for (Player pl : Bukkit.getOnlinePlayers()) {
 			pl.setGameMode(GameMode.ADVENTURE);
-			//pl.sendMessage(ChatColor.GRAY + "You're playing on " + ChatColor.AQUA + "mapName");
-			pl.sendMessage(ChatColor.GRAY + "You are playing on " + ChatColor.AQUA + mapName + ChatColor.GRAY + "!");
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "Game starting in 5 seconds!");
+			pl.sendMessage(gameStartMsg);
 			
-			/*pl.getInventory().clear();
-			pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
-			pl.getInventory().setHelmet(SmashCore.players.get(pl).getKit().getHelmet());
-			pl.updateInventory();*/
 			SmashCore.players.get(pl).giveKitItems();
 			pl.setLevel(1);
 		}
+		
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
 			@Override
 			public void run() {
+				final String gameStartMsg = ChatColor.GOLD + "Game starting now!";
 				for (Player pl : Bukkit.getOnlinePlayers()) {
-					pl.sendMessage(ChatColor.GOLD + "Game starting now!");
-					/*pl.getInventory().clear();
-					pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
-					pl.getInventory().setHelmet(SmashCore.players.get(pl).getKit().getHelmet());
-					pl.updateInventory();*/
+					pl.sendMessage(gameStartMsg);
 					SmashCore.players.get(pl).giveKitItems();
-					
-					/*for (int i : SmashCore.players.get(pl).inventorySlot.keySet()) {
-						Bukkit.getPlayer("Brandonjja").sendMessage(SmashCore.players.get(pl).inventorySlot.get(i).getType().toString() + i);
-					}*/
-					
 				}
 				playing = true;
 				runGameLoop();
 			}
 
-		}, 20 * 5); // 20 Ticks * x seconds = Starts in x seconds
+		}, 20 * 5);
 		
 	}
 	
@@ -90,11 +77,10 @@ public class Game {
 				SmashWorld.spawnItem();
 				fixSlabs();
 			}
-		}, 20L * 10, 20L * itemSpawnDelay); // 0 Tick initial delay, 20 * x seconds between repeats
+		}, 20L * 10, 20L * itemSpawnDelay);
 	}
 	
 	private static void fixSlabs() {
-		//long time = System.currentTimeMillis();
 		List<Location> safe = new ArrayList<>();
 		Player player = (Player) Bukkit.getOnlinePlayers().toArray()[0];
 		
@@ -116,27 +102,19 @@ public class Game {
 		boolean needToUpdate[] = new boolean[SmashWorld.slabLoc.size()];
 		int ctr = 0;
 		
-		//String mes = "";
-		
 		for (Location l : SmashWorld.slabLoc) {
 			for (Location safeL : safe) {
 				if (safeL.getBlock().getType() != Material.STEP) {
 					needToUpdate[ctr] = false;
-					//mes += "not step ";
 					return;
 				}
 				needToUpdate[ctr] = true;
 				if (l.getBlockX() == safeL.getBlockX() && l.getBlockY() == safeL.getBlockY() && l.getBlockZ() == safeL.getBlockZ()) {
 					needToUpdate[ctr] = false;
-					//Bukkit.getPlayer("Brandonjja").sendMessage("added");
-					//mes += "added ";
 					break;
 				}
 			}
 			ctr++;
-			/*if (safe.contains(l)) {
-				continue;
-			}*/
 		}
 		
 		for (int i = 0; i < SmashWorld.slabLoc.size(); i++) {
@@ -145,12 +123,6 @@ public class Game {
 				//Bukkit.getPlayer("Brandonjja").sendMessage("Fixed at: " + SmashWorld.slabLoc.get(i).getBlockX() + " " + SmashWorld.slabLoc.get(i).getBlockZ());
 			}
 		}
-		
-		//long end = System.currentTimeMillis();
-		//Bukkit.getPlayer("Brandonjja").sendMessage(mes);
-        //Bukkit.getPlayer("Brandonjja").sendMessage((end - time) + "ms to fix");
-		
-		
 	}
 	
 	/*private static boolean isSafe() {
@@ -166,6 +138,7 @@ public class Game {
 		return false;
 	}*/
 	
+	/** Checks if a player has won the game */
 	public static void checkEndGame() {
 		List<Player> winners = new ArrayList<>();
 		for (Player pl : Bukkit.getOnlinePlayers()) {
@@ -179,26 +152,40 @@ public class Game {
 		}
 	}
 	
+	/**
+	 * Ends the game
+	 * @param winners A list of winners in the game
+	 */
 	private static void triggerEndGame(List<Player> winners) {
 		playing = false;
 		Bukkit.getScheduler().cancelTask(loopID);
 		loopID = -1;
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			//pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
-			SmashCore.players.get(pl).giveKitItems();
-			SmashCore.players.get(pl).setLastHitFrom(null);
-			pl.setGameMode(GameMode.SURVIVAL);
-			pl.sendMessage(ChatColor.GOLD + "Game finished!");
-			if (winners.size() == 1) {
-				pl.sendMessage(ChatColor.GOLD + winners.get(0).getName() + " wins with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!");
-			} else {
-				String names = "";
-				for (int i = 0; i < winners.size() - 1; i++) {
-					names += winners.get(i) + " and ";
-				}
-				names += winners.get(winners.size() - 1);
-				pl.sendMessage(ChatColor.GOLD + names + " draw with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!");
+		
+		String winMsg;
+		
+		if (winners.size() == 1) {
+			Player winnerPlayer = winners.get(0);
+			winMsg = ChatColor.GOLD + winnerPlayer.getName() + " wins with a score of " + ScoreboardManager.getScore(winnerPlayer) + "!";
+		} else {
+			//String names = "";
+			StringBuilder names = new StringBuilder("");
+			names.append(ChatColor.GOLD);
+			for (int i = 0; i < winners.size() - 1; i++) {
+				names.append(winners.get(i));
+				names.append(" and ");
 			}
+			names.append(winners.get(winners.size() - 1));
+			winMsg = names.toString() + " draw with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!";
+		}
+		
+		final String gameFinishedMsg = ChatColor.GOLD + "Game Finished!";
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			SmashPlayer smashPlayer = SmashCore.players.get(player);
+			smashPlayer.giveKitItems();
+			smashPlayer.setLastHitFrom(null);
+			player.setGameMode(GameMode.SURVIVAL);
+			player.sendMessage(gameFinishedMsg);
+			player.sendMessage(winMsg);
 		}
 		
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
@@ -209,29 +196,29 @@ public class Game {
 				deleteMap();
 				SmashCore.currentMap = "lobby2";
 				win = false;
-				for (Player pl : Bukkit.getOnlinePlayers()) {
-					pl.setLevel(1);
-					ScoreboardManager.updateKB(pl);
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					player.setLevel(1);
+					ScoreboardManager.updateKB(player);
 				}
 			}
 
 		}, 20 * 8); // 20 Ticks * x seconds = Starts in x seconds
 	}
 	
+	/** Forcibly end a game before a player wins */
 	public static void forceEnd() {
 		playing = false;
 		Bukkit.getScheduler().cancelTask(loopID);
 		loopID = -1;
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			/*pl.getInventory().clear();
-			pl.getInventory().setContents(SmashCore.players.get(pl).getKit().getItems());
-			pl.updateInventory();*/
-			SmashCore.players.get(pl).giveKitItems();
-			SmashCore.players.get(pl).setLastHitFrom(null);
-			pl.setGameMode(GameMode.SURVIVAL);
-			pl.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.GOLD + "Game force ended");
-			pl.setLevel(1);
-			ScoreboardManager.updateKB(pl);
+		final String forceEndMsg = ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.GOLD + "Game force ended";
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			SmashPlayer smashPlayer = SmashCore.players.get(player);
+			smashPlayer.giveKitItems();
+			smashPlayer.setLastHitFrom(null);
+			player.setGameMode(GameMode.SURVIVAL);
+			player.sendMessage(forceEndMsg);
+			player.setLevel(1);
+			ScoreboardManager.updateKB(player);
 		}
 		
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
@@ -246,30 +233,24 @@ public class Game {
 				
 			}
 
-		}, 20); // 20 Ticks * x seconds = Starts in x seconds
+		}, 20);
 	}
 	
+	/** Deletes the current map being used in game */
 	private static void deleteMap() {
-		World delete = Bukkit.getWorld(SmashCore.currentMap);
-		if (SmashCore.currentMap == "lobby" || SmashCore.currentMap == "lobby2") {
+		if (SmashCore.currentMap.equals("lobby") || SmashCore.currentMap.equals("lobby2")) {
 			return;
 		}
-		SmashFileManager.unloadWorld(delete);
-		File deleteFolder;
-		try {
-			deleteFolder = delete.getWorldFolder();
-			SmashFileManager.deleteWorld(deleteFolder);
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-			return;
-		}
-		SmashFileManager.deleteWorld(deleteFolder);
-		return;
+		deleteMap(SmashCore.currentMap);
 	}
 	
+	/**
+	 * Deletes the map
+	 * @param map The map name
+	 */
 	private static void deleteMap(String map) {
 		World delete = Bukkit.getWorld(map);
-		if (map == "lobby" || map == "lobby2") {
+		if (map.equals("lobby") || map.equals("lobby2")) {
 			return;
 		}
 		SmashFileManager.unloadWorld(delete);
@@ -281,8 +262,6 @@ public class Game {
 			e.printStackTrace();
 			return;
 		}
-		SmashFileManager.deleteWorld(deleteFolder);
-		return;
 	}
 	
 	public static void setInGame(boolean inGame) {

@@ -45,6 +45,7 @@ public class SmashFileManager {
 				}
 			}
 		}
+		path.delete();
 	}
 	
 	/** Copy a world to a new folder **/
