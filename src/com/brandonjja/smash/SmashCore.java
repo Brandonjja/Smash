@@ -27,6 +27,14 @@ public class SmashCore {
 		
 		currentMap = "lobby2";
 		
+		loadConfig();
+	}
+	
+	protected static void loadConfig() {
+		Smash INSTANCE = Smash.getInstance();
+		INSTANCE.reloadConfig();
+		INSTANCE.getConfig().options().copyDefaults(true);
+		INSTANCE.saveConfig();
 	}
 	
 	protected static void shutdown() {
