@@ -3,6 +3,7 @@ package com.brandonjja.smash.kits.classes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,8 +18,6 @@ import org.bukkit.util.Vector;
 import com.brandonjja.smash.SmashCore;
 import com.brandonjja.smash.game.SmashPlayer;
 import com.brandonjja.smash.kits.Kit;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class Toshi extends Kit {
 	private static List<ItemStack> items;
