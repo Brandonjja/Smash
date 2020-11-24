@@ -43,21 +43,7 @@ public class SmashPlayer {
 		this.giveKitItems();
 	}
 	
-	/*private void addKitItems() {
-		kitItems = new ArrayList<>();
-		kitItems.add(Material.STONE_AXE);
-		kitItems.add(Material.IRON_SWORD);
-		kitItems.add(Material.FIREWORK);
-		kitItems.add(Material.BOW);
-		kitItems.add(Material.ARROW);
-		kitItems.add(Material.SNOW_BALL);
-		kitItems.add(Material.ENDER_PEARL);
-		kitItems.add(Material.GOLDEN_CARROT);
-		kitItems.add(Material.WOOD_AXE);
-		kitItems.add(Material.CLAY_BRICK);
-		kitItems.add(Material.MONSTER_EGG);
-	}*/
-	
+	/** Get if the player used their first double-jump */
 	public boolean getFirstJump() {
 		return firstJump;
 	}
@@ -97,6 +83,7 @@ public class SmashPlayer {
 		return false;
 	}
 	
+	/** Reduce the amount of remaining double-jumps to use */
 	public void decrementJumps() {
 		--jumpsLeft;
 		if (jumpsLeft == kit.getJumps() - 1) {
@@ -120,6 +107,7 @@ public class SmashPlayer {
 		}
 	}
 	
+	/** Reset the amount of double-jumps the player is able to use, back to the kit default */
 	public void resetJumps() {
 		jumpsLeft = kit.getJumps();
 		player.setExp(0.99f);
@@ -128,10 +116,12 @@ public class SmashPlayer {
 		}
 	}
 	
+	/** Returns the player's remaining double-jumps they are able to use */
 	public int getJumpsLeft() {
 		return jumpsLeft;
 	}
 	
+	/** Returns the player who hit this player last. null if this player was not hit yet */
 	public Player getLastHitFrom() {
 		return lastPlayerToHit;
 	}
@@ -150,19 +140,6 @@ public class SmashPlayer {
 	
 	public void saveInventory() {
 		inventory = player.getInventory().getContents();
-		/*boolean contains = false;
-		for (int key : inventorySlot.keySet()) {
-			for (int i = 0; i < inventory.length; i++) {
-				if (inventorySlot.get(key).getType() == inventory[i].getType()) {
-					contains = true;
-					break;
-				}
-			}
-			if (!contains) {
-				inventory = new ItemStack[inventory.length + 1];
-				
-			}
-		}*/
 	}
 	
 	public ItemStack[] getInventory() {
@@ -170,7 +147,6 @@ public class SmashPlayer {
 	}
 	
 	public void addMissingItemsAfterHammer() {
-		//for (ItemStack item : inventorySlot.values()) {
 		for (ItemStack item : kit.getItems()) {
 			if (!player.getInventory().contains(item.getType())) {
 				item.setAmount(1);
@@ -185,6 +161,7 @@ public class SmashPlayer {
 		
 	}
 	
+	/** Gives the player the items from their selected kit */
 	public void giveKitItems() {
 		if (inventorySlot == null) {
 			player.getInventory().clear();
@@ -205,17 +182,16 @@ public class SmashPlayer {
 			if (item == null) {
 				continue;
 			}
-			//if (kitItems.contains(item.getType())) {
+			
 			if (item.getType() != Material.MONSTER_EGG) {
 				item.setDurability((short) 0);
 			}
 			if (Arrays.asList(kit.getItems()).contains(item)) {
-				//player.sendMessage("contains " + item.getType().toString() + item.getDurability());
 				
-			//if ()
 				if (item.getType() == Material.IRON_AXE && !(kit instanceof Shadow)) {
 					return;
 				}
+				
 				inventorySlot.put(i, item);
 			}
 		}
@@ -242,6 +218,7 @@ public class SmashPlayer {
 		player.updateInventory();
 	}
 	
+	/** Returns the next empty slot available, omitting slots where a kit item on cool-down is supposed to go */
 	public int getNextSlot() {
 		for (Integer i = 0; i < 36; i++) {
 			if (!inventorySlot.containsKey(i) && player.getInventory().getItem(i) == null) {
@@ -260,6 +237,15 @@ public class SmashPlayer {
 		this.hammerCooldown = hammerCooldown;
 	}
 	
+	// TODO: Remove the use of the scheduler for cool-downs, HashMaps with cool-down times would be more efficient
+	/**
+	 * Adds a cool-down to the usage of an item
+	 * 
+	 * @param material the type of the item to put on cooldown
+	 * @param itemName the custom name of the time
+	 * @param time the amount of time to set the cool-down for
+	 * @param slot the slot of the item being used
+	 */
 	public void runItemTimer(Material material, String itemName, int time, int slot) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
 			@Override
@@ -275,28 +261,51 @@ public class SmashPlayer {
 					player.getInventory().setItem(slot, item);
 				} else {
 					if (!player.getInventory().contains(item)) {
-						//player.getInventory().addItem(item);
 						player.getInventory().setItem(slot, item);
 					}
 				}
 				getKit().setCanGiveItem(material, true);
 			}
 
-		}, 20 * time); // 20 Ticks * x seconds = Starts in x seconds
+		}, 20 * time);
 	}
 	
+	/**
+	 * Sends a message to all players when a player falls into the void
+	 * 
+	 * @param victim the player who fell into the void
+	 * @param killer the player who killed the victim. null if the victim fell on their own
+	 * @param weapon the weapon used by the killer, if the killer is not null
+	 */
 	public void sendKillMessage(Player victim, Player killer, String weapon) {
+		SmashPlayer smashPlayer = SmashCore.players.get(victim);
+		StringBuilder message = new StringBuilder("");
+		message.append(ChatColor.GOLD)
+		.append(victim.getName())
+		.append("(")
+		.append(smashPlayer.getKit().getName())
+		.append(")")
+		.append(ChatColor.WHITE);
 		if (killer == null) {
-			for (Player pl : Bukkit.getOnlinePlayers()) {
-				pl.sendMessage(ChatColor.GOLD + victim.getName() + "(" + SmashCore.players.get(victim).getKit().getName()
-					+ ")" + ChatColor.WHITE + " fell out");
+			message.append(" fell out");
+			final String finalMessage = message.toString();
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				player.sendMessage(finalMessage);
 			}
 			return;
 		}
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			pl.sendMessage(ChatColor.GOLD + victim.getName() + "(" + SmashCore.players.get(victim).getKit().getName()
-					+ ")" + ChatColor.WHITE + " was KO'd by " + ChatColor.GREEN + killer.getName() + "("
-					+ SmashCore.players.get(killer).getKit().getName() + ")\'s " + ChatColor.DARK_AQUA + this.weapon);
+		
+		final String finalMessage = message.append(" was KO'd by ")
+		.append(ChatColor.GREEN)
+		.append(killer.getName())
+		.append("(")
+		.append(SmashCore.players.get(killer).getKit().getName())
+		.append(")\'s ")
+		.append(ChatColor.DARK_AQUA)
+		.append(this.weapon).toString();
+		
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.sendMessage(finalMessage);
 		}
 	}
 }
