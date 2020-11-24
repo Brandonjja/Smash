@@ -1,71 +1,89 @@
 package com.brandonjja.smash.game;
 
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import com.brandonjja.smash.Smash;
-
-import net.md_5.bungee.api.ChatColor;
-
 public class ScoreboardManager {
 	private static Scoreboard gameBoard;
-	private static Objective obj, objKB;
+	private static Objective objective, kbLevelObjective;
+	private final static int scoreOne = 1;
 	
+	/** Creates a new game Scoreboard, setting everybody's score to zero */
 	public static void newBoard() {
 		gameBoard = Bukkit.getScoreboardManager().getNewScoreboard();
-		obj = gameBoard.registerNewObjective("smash", "dummy");
-		obj.setDisplayName(ChatColor.GOLD + "Score");
-		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+		objective = gameBoard.registerNewObjective("smash", "dummy");
+		objective.setDisplayName(ChatColor.GOLD + "Score");
+		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			obj.getScore(pl.getName()).setScore(0);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			objective.getScore(player.getName()).setScore(0);
 		}
 		
-		objKB = gameBoard.registerNewObjective("%", "dummy");
-		objKB.setDisplaySlot(DisplaySlot.BELOW_NAME);
+		kbLevelObjective = gameBoard.registerNewObjective("%", "dummy");
+		kbLevelObjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
 		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			objKB.getScore(pl.getName()).setScore(pl.getLevel());
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			kbLevelObjective.getScore(player.getName()).setScore(player.getLevel());
 		}
 	}
 	
+	/**
+	 * Gives the Scoreboard to a player. The Scoreboard may already contain
+	 * score values, if given after a game has started
+	 * 
+	 * @param player the player to give the Scoreboard to
+	 */
 	public static void giveScoreboard(Player player) {
 		player.setScoreboard(gameBoard);
 	}
 	
+	/** Updates the given player's knockback level displayed above their head */
 	public static void updateKB(Player player) {
 		try {
-			objKB.getScore(player.getName()).setScore(player.getLevel());
-		} catch (NullPointerException e) {
-			Smash.getInstance().getLogger().log(Level.WARNING, "Scoreboard Error - ScoreboardManager:43. Are you in game?");
+			kbLevelObjective.getScore(player.getName()).setScore(player.getLevel());
+		} catch (NullPointerException ex) {
+			// No scoreboard to update. Most likely not in game
 		}
 	}
 	
+	/**
+	 * Updates the player's score on the Scoreboard by 1
+	 * 
+	 * @param player the player who is getting their score changed
+	 */
 	public static void updateScore(Player player) {
 		try {
-			obj.getScore(player.getName()).setScore(obj.getScore(player.getName()).getScore() + 1);
+			objective.getScore(player.getName()).setScore(objective.getScore(player.getName()).getScore() + scoreOne);
 		} catch (NullPointerException ex) {
-			//ex.printStackTrace();
-			Smash.getInstance().getLogger().log(Level.WARNING, "==- ScoreboardError: ScoreboardManager:47 -==");
-			// This prob happened if a player fell off before the game
+			// This prob happened if a player fell off before the game started
 		}
 	}
 	
+	/**
+	 * Updates the player's score on the Scoreboard by the amount given
+	 * 
+	 * @param player the player who is getting their score changed
+	 * @param score the amount to modify the player's score by
+	 */
 	public static void updateScore(Player player, int score) {
-		obj.getScore(player.getName()).setScore(obj.getScore(player.getName()).getScore() + score);
+		objective.getScore(player.getName()).setScore(objective.getScore(player.getName()).getScore() + score);
 	}
 	
+	/**
+	 * Retrieves the score of a given player
+	 * 
+	 * @param player the player to get the score of
+	 * @return the score of the player, or zero if there is no current game
+	 */
 	public static int getScore(Player player) {
 		try {
-			return obj.getScore(player.getName()).getScore();
-		} catch (NullPointerException e) {
-			Smash.getInstance().getLogger().log(Level.WARNING, "Scoreboard Error - ScoreboardManager:65. Are you in game?");
-			return 0;
+			return objective.getScore(player.getName()).getScore();
+		} catch (NullPointerException ex) {
+			return 0; // Not in a game, so just return zero
 		}
 	}
 }
