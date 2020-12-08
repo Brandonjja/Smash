@@ -2,6 +2,8 @@
 
 Smash is a Minecraft gamemode inspired by Nintendo's Super Smash Bros. The aim of the game is to knock your opponents off the map to gain points, using your special kit items, as well as items (power-ups) picked up around the map. The more damage you recieve, the more knockback you recieve on each hit. _Disclaimer: The design of this plugin is modelled from a retired Minecraft server called McPVP. Subsequently, some items and abilities are derived/inspired by them._
 
+**YouTube Showcase:** https://youtu.be/B4x7BLId1F4
+
 
 ## Kits
 This is a list of currently completed kits, including their items and abilities. Every kit comes with a double-jump rocket, allowing you to jump mid air!
