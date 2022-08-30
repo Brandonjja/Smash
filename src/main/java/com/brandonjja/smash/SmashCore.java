@@ -20,9 +20,9 @@ public class SmashCore {
 		CommandManager.registerCommands();
 		EventManager.registerListeners();
 		
-		for (Player pl : Bukkit.getOnlinePlayers()) {
-			SmashPlayer p = new SmashPlayer(pl);
-			players.put(pl, p);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			SmashPlayer smashPlayer = new SmashPlayer(player);
+			players.put(player, smashPlayer);
 		}
 		
 		currentMap = "lobby2";

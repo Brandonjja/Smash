@@ -35,67 +35,58 @@ import com.brandonjja.smash.kits.classes.Toshi;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayerInteractItemListener implements Listener {
-	
+
 	@EventHandler
-	public void onItemUse(PlayerInteractEvent e) {
-		Player player = e.getPlayer();
+	public void onItemUse(PlayerInteractEvent event) {
+		Player player = event.getPlayer();
 		SmashPlayer smashPlayer = SmashCore.players.get(player);
-		
+
 		Material item = player.getItemInHand().getType();
-		
-		if (e.getAction().equals(Action.PHYSICAL) && e.getClickedBlock().getType() == Material.STONE_PLATE) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					e.getClickedBlock().setType(Material.AIR);
-					e.getClickedBlock().getState().update();
-				}
 
-			}, 2); // 20 Ticks * x seconds = Starts in x seconds
+		if (event.getAction().equals(Action.PHYSICAL) && event.getClickedBlock().getType() == Material.STONE_PLATE) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+				event.getClickedBlock().setType(Material.AIR);
+				event.getClickedBlock().getState().update();
+			}, 2);
 
-			TNTPrimed tnt = (TNTPrimed) player.getWorld().spawn(player.getLocation(), TNTPrimed.class);
+			TNTPrimed tnt = player.getWorld().spawn(player.getLocation(), TNTPrimed.class);
 			tnt.setFuseTicks(1);
 			return;
-			/*player.sendMessage(loc.getY() + "");
-			player.getWorld().createExplosion(loc.getX(), loc.getY(), loc.getZ(), 5, false, false);*/
 		}
-		
+
 		if (item == Material.STONE_PLATE) {
-			@SuppressWarnings("deprecation") // TODO: Deprecated
 			FallingBlock landMine = player.getLocation().getWorld().spawnFallingBlock(player.getLocation(), Material.STONE_PLATE, (byte) 0);
 			Vector vec = player.getLocation().getDirection();
 			landMine.setVelocity(vec.multiply(2));
-			
+
 			ItemStack landMineItem = player.getInventory().getItemInHand();
 			landMineItem.setAmount(landMineItem.getAmount() - 1);
 			player.getInventory().setItemInHand(landMineItem);
 			return;
 		}
-		
+
 		// Double-Jump
 		if (item == Material.FIREWORK) {
-			//player.getLocation().setY(player.getLocation().getY());
-			e.setCancelled(true);
-			
+			event.setCancelled(true);
+
 			if (inNormalParkourArea(player)) {
 				return;
 			}
-			
+
 			if (!smashPlayer.hasJump()) {
 				smashPlayer.setFirstJump(false);
-				
+
 				if (smashPlayer.getKit() instanceof Jigglyo) {
 					if (((Jigglyo) smashPlayer.getKit()).getMiniJumps() >= 1) {
 						((Jigglyo) smashPlayer.getKit()).decrementMiniJumps();
 						smashPlayer.decrementJumps();
 						Vector vec = player.getEyeLocation().getDirection();
 						vec.multiply(0.45);
-						//vec.setY(0.6);
 						vec.setY(0.7);
 						player.setVelocity(vec);
 					}
 				}
-				
+
 				return;
 			}
 			smashPlayer.decrementJumps();
@@ -105,7 +96,7 @@ public class PlayerInteractItemListener implements Listener {
 			vec.setY(1);
 			player.setVelocity(vec);
 		}
-		
+
 		// Pika Lunge
 		if (item == Material.GOLDEN_CARROT) {
 			if (inNormalParkourArea(player)) {
@@ -131,158 +122,79 @@ public class PlayerInteractItemListener implements Listener {
 				}
 			}
 		}
-		
+
 		if (!Game.inGame()) {
-			//e.setCancelled(true);
-			//player.getInventory().setItemInHand(player.getItemInHand());
 			return;
 		}
-		
+
 		// Pika Thunder Jolt
 		if (item == Material.WOOD_AXE || item == Material.STONE_AXE) {
 			if (smashPlayer.getKit() instanceof Pika) {
 				if (!((Pika) smashPlayer.getKit()).canStrike()) {
 					return;
 				}
-				
-				LightningStrike lightning = player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>)null, 4).getLocation());
+
+				LightningStrike lightning = player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 4).getLocation());
 				((Pika) smashPlayer.getKit()).setLightning(lightning);
 				((Pika) smashPlayer.getKit()).setStrike(false);
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						((Pika) smashPlayer.getKit()).setStrike(true);
-						player.sendMessage(ChatColor.GREEN + "You can now use your " + ChatColor.RED + "" + ChatColor.BOLD + "Thunder Jolt" + ChatColor.GREEN + " again!");
-					}
-
-				}, 20 * 15); // 20 Ticks * x seconds = Starts in x seconds
+				Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+					((Pika) smashPlayer.getKit()).setStrike(true);
+					player.sendMessage(ChatColor.GREEN + "You can now use your " + ChatColor.RED + "" + ChatColor.BOLD + "Thunder Jolt" + ChatColor.GREEN + " again!");
+				}, 20 * 15);
 			} else if (smashPlayer.getKit() instanceof Shadow) {
-				if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+				if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
 					return;
 				}
 				if (!((Shadow) smashPlayer.getKit()).canStrike()) {
 					return;
 				}
-				
-				LightningStrike lightning = player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>)null, 4).getLocation());
+
+				LightningStrike lightning = player.getWorld().strikeLightning(player.getTargetBlock((Set<Material>) null, 4).getLocation());
 				((Shadow) smashPlayer.getKit()).setLightning(lightning);
 				((Shadow) smashPlayer.getKit()).setStrike(false);
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						((Shadow) smashPlayer.getKit()).setStrike(true);
-						player.sendMessage(ChatColor.GREEN + "You can now use your " + ChatColor.RED + "" + ChatColor.BOLD + "Thunder Jolt" + ChatColor.GREEN + " again!");
-					}
-
-				}, 20 * 25); // 20 Ticks * x seconds = Starts in x seconds
+				Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+					((Shadow) smashPlayer.getKit()).setStrike(true);
+					player.sendMessage(ChatColor.GREEN + "You can now use your " + ChatColor.RED + "" + ChatColor.BOLD + "Thunder Jolt" + ChatColor.GREEN + " again!");
+				}, 20 * 25);
 			}
 		}
-		
+
 		// Metoo
 		if (item == Material.ENDER_PEARL) {
 			smashPlayer.runItemTimer(item, "Teleporter", 8, player.getInventory().getHeldItemSlot());
-			/*Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					if (p.getKit().canGiveItem(item)) {
-						ItemStack pearl = new ItemStack(Material.ENDER_PEARL);
-						ItemMeta meta = pearl.getItemMeta();
-						meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Teleporter");
-						pearl.setItemMeta(meta);
-						player.getInventory().addItem(pearl);
-					}
-					p.getKit().setCanGiveItem(item, true);
-				}
-
-			}, 20 * 4); // 20 Ticks * x seconds = Starts in x seconds*/
 		}
-		
+
 		if (item == Material.SNOW_BALL) {
 			if (smashPlayer.getKit() instanceof Blink) {
 				smashPlayer.runItemTimer(item, "Switcher", 8, player.getInventory().getHeldItemSlot());
-				/*Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						ItemStack snowball = new ItemStack(Material.SNOW_BALL);
-						ItemMeta meta = snowball.getItemMeta();
-						meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Switcher");
-						snowball.setItemMeta(meta);
-						if (p.getKit().canGiveItem(item) && !player.getInventory().contains(snowball)) {
-							player.getInventory().addItem(snowball);
-						} else {
-							if (!player.getInventory().contains(snowball)) {
-								player.getInventory().addItem(snowball);
-							}
-						}
-						p.getKit().setCanGiveItem(item, true);
-					}
-
-				}, 20 * 4); // 20 Ticks * x seconds = Starts in x seconds*/
 			} else if (smashPlayer.getKit() instanceof Metoo) {
 				smashPlayer.runItemTimer(item, "Psychic Orb", 14, player.getInventory().getHeldItemSlot());
-				/*Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						ItemStack snowball = new ItemStack(Material.SNOW_BALL);
-						ItemMeta meta = snowball.getItemMeta();
-						meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Psychic Orb");
-						snowball.setItemMeta(meta);
-						if (p.getKit().canGiveItem(item) && !player.getInventory().contains(snowball)) {
-							player.getInventory().addItem(snowball);
-						} else {
-							if (!player.getInventory().contains(snowball)) {
-								player.getInventory().addItem(snowball);
-							}
-						}
-						p.getKit().setCanGiveItem(item, true);
-					}
-
-				}, 20 * 4); // 20 Ticks * x seconds = Starts in x seconds*/
 			} else if (smashPlayer.getKit() instanceof Shadow) {
 				smashPlayer.runItemTimer(item, "Switcher", 16, player.getInventory().getHeldItemSlot());
-				/*Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						ItemStack snowball = new ItemStack(Material.SNOW_BALL);
-						ItemMeta meta = snowball.getItemMeta();
-						meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Switcher");
-						snowball.setItemMeta(meta);
-						if (p.getKit().canGiveItem(item) && !player.getInventory().contains(snowball)) {
-							player.getInventory().addItem(snowball);
-						} else {
-							if (!player.getInventory().contains(snowball)) {
-								player.getInventory().addItem(snowball);
-							}
-						}
-						p.getKit().setCanGiveItem(item, true);
-					}
-
-				}, 20 * 12); // 20 Ticks * x seconds = Starts in x seconds*/
 			}
 		}
-		
+
 		if (item == Material.CLAY_BRICK && smashPlayer.getKit() instanceof Toshi) {
-			
+
 			ItemStack brick = player.getInventory().getItemInHand();
 			brick.setAmount(brick.getAmount() - 1);
 			player.getInventory().setItemInHand(brick);
-			
-			Vector vec = new Vector(0,  -2,  0);
+
+			Vector vec = new Vector(0, -2, 0);
 			vec.multiply(0.8);
 			player.setVelocity(vec);
-			((Toshi)smashPlayer.getKit()).setUsedPound(true); //TODO: Just try
-			//TODO: move to MoveListener?
-			
+			((Toshi) smashPlayer.getKit()).setUsedPound(true);
+
 			smashPlayer.runItemTimer(item, "Ground Pound", 15, player.getInventory().getHeldItemSlot());
-			
+
 		}
-		
+
 		if (item == Material.MONSTER_EGG && smashPlayer.getKit() instanceof Toshi) {
 			player.launchProjectile(Egg.class);
 			player.getInventory().remove(Material.MONSTER_EGG);
-			
+
 			int slot = player.getInventory().getHeldItemSlot();
-			
+
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
 				@Override
 				public void run() {
@@ -291,22 +203,17 @@ public class PlayerInteractItemListener implements Listener {
 					meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Toshi Egg");
 					egg.setItemMeta(meta);
 					if (smashPlayer.getKit().canGiveItem(item)) {
-						//player.getInventory().addItem(egg);
 						player.getInventory().setItem(slot, egg);
 					} else {
 						if (!player.getInventory().contains(egg)) {
-							//player.getInventory().addItem(egg);
 							player.getInventory().setItem(slot, egg);
 						}
 					}
 					smashPlayer.getKit().setCanGiveItem(item, true);
 				}
 
-			}, 20 * 8); // 20 Ticks * x seconds = Starts in x seconds
+			}, 20 * 8);
 		}
-		
-		
-		
 		
 		// ______________________________________________________________________________________________________________________________________________________
 		// ______________________________________________________________________________________________________________________________________________________
@@ -315,13 +222,9 @@ public class PlayerInteractItemListener implements Listener {
 		
 		// ______________________________________________________________________________________________________________________________________________________
 		// ______________________________________________________________________________________________________________________________________________________
-		
-		
-		
-		
+
 		if (item == Material.TNT) {
-			//FallingBlock tnt = player.getLocation().getWorld().spawnFallingBlock(player.getLocation(), Material.TNT, (byte) 0);
-			TNTPrimed tnt = (TNTPrimed) player.getWorld().spawn(player.getLocation(), TNTPrimed.class);
+			TNTPrimed tnt = player.getWorld().spawn(player.getLocation(), TNTPrimed.class);
 			Vector vec = player.getLocation().getDirection();
 			tnt.setVelocity(vec.multiply(2));
 			tnt.setFuseTicks(20 * 2);
@@ -329,7 +232,7 @@ public class PlayerInteractItemListener implements Listener {
 			handTnt.setAmount(handTnt.getAmount() - 1);
 			player.getInventory().setItemInHand(handTnt);
 		}
-		
+
 		if (item == Material.FEATHER) {
 			ItemStack feather = player.getInventory().getItemInHand();
 			feather.setAmount(feather.getAmount() - 1);
@@ -341,64 +244,54 @@ public class PlayerInteractItemListener implements Listener {
 			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20 * 10, 2));
 			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 2));
 		}
-		
+
 		if (item == Material.APPLE) {
-			e.setCancelled(true);
+			event.setCancelled(true);
 			ItemStack apple = player.getInventory().getItemInHand();
 			if (apple.getAmount() <= 1) {
 				player.getInventory().remove(apple);
 				player.updateInventory();
-				if (player.getLevel() - 50 <= 1) {
-					player.setLevel(1);
-				} else {
-					player.setLevel(player.getLevel() - 50); // Should be 80
-				}
+				// Should be 80
+				player.setLevel(Math.max(player.getLevel() - 50, 1));
 				ScoreboardManager.updateKB(player);
 				return;
 			}
 			apple.setAmount(apple.getAmount() - 1);
 			player.getInventory().setItemInHand(apple);
 			player.updateInventory();
-			if (player.getLevel() - 50 <= 1) {
-				player.setLevel(1);
-			} else {
-				player.setLevel(player.getLevel() - 50); // Should be 80
-			}
+			// Should be 80
+			player.setLevel(Math.max(player.getLevel() - 50, 1));
 			ScoreboardManager.updateKB(player);
 			return;
 		}
-		
+
 		if (item == Material.GOLDEN_APPLE) {
-			e.setCancelled(true);
+			event.setCancelled(true);
 			ItemStack apple = player.getInventory().getItemInHand();
 			apple.setAmount(apple.getAmount() - 1);
 			player.getInventory().setItemInHand(apple);
 			player.setLevel(1);
 			ScoreboardManager.updateKB(player);
-			return;
 		}
-		
-		
 	}
-	
-	
+
+
 	private boolean inNormalParkourArea(Player player) {
 		if (!player.getWorld().getName().equalsIgnoreCase("lobby2")) {
 			return false;
 		}
-		
+
 		Location loc = player.getLocation();
-		
-		if ((loc.getY() >= 19 && loc.getY() <= 26) && (loc.getX() < 1156 && loc.getX() > 1152) && (loc.getZ() <= -583.5 && loc.getZ() >= -588) ) {
+
+		if ((loc.getY() >= 19 && loc.getY() <= 26) && (loc.getX() < 1156 && loc.getX() > 1152) && (loc.getZ() <= -583.5 && loc.getZ() >= -588)) {
 			return false;
 		}
-		
+
 		if (loc.getZ() > -588 && loc.getZ() < -544) {
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.RED + "Double-Jumps are disabled in this area");
 			return true;
 		}
 		return false;
 	}
-	
-	
+
 }

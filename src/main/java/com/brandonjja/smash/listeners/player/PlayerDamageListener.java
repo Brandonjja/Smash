@@ -37,120 +37,102 @@ import com.brandonjja.smash.kits.classes.Toshi;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayerDamageListener implements Listener {
-	
+
 	@EventHandler
-	public void onDamage(EntityDamageEvent e) {
-		if (!(e.getEntity() instanceof Player)) {
-				return;
+	public void onDamage(EntityDamageEvent event) {
+		if (!(event.getEntity() instanceof Player)) {
+			return;
 		}
-		
-		Player player = (Player) e.getEntity();
+
+		Player player = (Player) event.getEntity();
 		player.setHealth(20);
-		
-		SmashPlayer p = SmashCore.players.get(player);
-		
-		if (e.getCause() == DamageCause.FALL) {
-			p.resetJumps();
-			e.setCancelled(true);
-			if (Game.inGame() && p.getKit() instanceof Toshi) {
-				Toshi kit = (Toshi) p.getKit();
+
+		SmashPlayer smashPlayer = SmashCore.players.get(player);
+
+		if (event.getCause() == DamageCause.FALL) {
+			smashPlayer.resetJumps();
+			event.setCancelled(true);
+			if (Game.inGame() && smashPlayer.getKit() instanceof Toshi) {
+				Toshi kit = (Toshi) smashPlayer.getKit();
 				if (kit.usedPound()) {
 					kit.setUsedPound(false);
 					kit.usePound(player);
 				}
 			}
 		}
-		
-		if (e.getCause() == DamageCause.BLOCK_EXPLOSION) {
-			e.setDamage(0);
+
+		if (event.getCause() == DamageCause.BLOCK_EXPLOSION) {
+			event.setDamage(0);
 			player.setVelocity(player.getLocation().getDirection().setY(0.05).multiply(player.getLevel()));
 			player.setLevel(player.getLevel() + 5);
 			ScoreboardManager.updateKB(player);
 			return;
 		}
-		
-		/*if (e.getCause() == DamageCause.LIGHTNING) {
-			SmashPlayer p = SmashCore.players.get(player);
-			if (p.getKit() instanceof Pika) {
-				if (!((Pika) p.getKit()).canStrike()) {
-				}
-			}
-		}*/
-		
-		
-		
-		/*e.setDamage(0);
-		
-		Player victim = (Player) e.getEntity();
-		
-		victim.setVelocity(victim.getVelocity().multiply((victim.getLevel())));
-		*/
-		
+
 		if (!Game.inGame()) {
-			e.setCancelled(true);
+			event.setCancelled(true);
 		}
-		
+
 	}
-	
+
 	@EventHandler
-	public void onAttack(EntityDamageByEntityEvent e) {
-		
+	public void onAttack(EntityDamageByEntityEvent event) {
 		if (!Game.inGame()) {
-			e.setCancelled(true);
+			event.setCancelled(true);
 			return;
 		}
-		
-		if (!(e.getEntity() instanceof Player)) {
+
+		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		
-		Player victim = (Player) e.getEntity();
-		
-		if (e.getDamager() instanceof LightningStrike) {
+
+		Player victim = (Player) event.getEntity();
+
+		if (event.getDamager() instanceof LightningStrike) {
 			SmashPlayer smashVictim = SmashCore.players.get(victim);
-			LightningStrike lightning = (LightningStrike) e.getDamager();
+			LightningStrike lightning = (LightningStrike) event.getDamager();
 			if (smashVictim.getKit() instanceof Pika) {
 				Pika pika = (Pika) smashVictim.getKit();
-				//if (lightning.equals(pika.getLightning(lightning))) {
 				if (pika.getLightning(lightning)) {
-					e.setCancelled(true);
+					event.setCancelled(true);
 					return;
 				}
 			}
+
 			if (smashVictim.getKit() instanceof Shadow) {
 				Shadow shadow = (Shadow) smashVictim.getKit();
-				//if (lightning.equals(pika.getLightning(lightning))) {
 				if (shadow.getLightning(lightning)) {
-					e.setCancelled(true);
+					event.setCancelled(true);
 					return;
 				}
 			}
+
 			victim.setVelocity(victim.getLocation().getDirection().setY(0.01).normalize().multiply(-((victim.getLevel() / 10) + 2)));
 			victim.setLevel(victim.getLevel() + 2);
-			e.setDamage(0);
+			event.setDamage(0);
 			ScoreboardManager.updateKB(victim);
-			
+
 			SmashPlayer smashPlayer;
 			for (Player pl : Bukkit.getOnlinePlayers()) {
 				smashPlayer = SmashCore.players.get(pl);
 				if (smashPlayer.getKit() instanceof Pika) {
-					if (((Pika)smashPlayer.getKit()).getLightning(lightning)) {
+					if (((Pika) smashPlayer.getKit()).getLightning(lightning)) {
 						smashVictim.setLastHitFrom(pl);
 						smashVictim.setLastHitWeapon("Thunder Jolt");
 					}
 				}
 			}
-			
+
 		}
 		
-		if (e.getDamager() instanceof Egg) {
-			Egg egg = (Egg) e.getDamager();
+		if (event.getDamager() instanceof Egg) {
+			Egg egg = (Egg) event.getDamager();
 			if (egg.getShooter() instanceof Player) {
 				SmashPlayer smashVictim = SmashCore.players.get(victim);
 				Player player = (Player) egg.getShooter();
 				
 				if (victim.equals(player)) {
-					e.setCancelled(true);
+					event.setCancelled(true);
 					return;
 				}
 				
@@ -162,7 +144,7 @@ public class PlayerDamageListener implements Listener {
 				
 				Location loc = new Location(victim.getWorld(), victim.getLocation().getX(), victim.getLocation().getY() + 1, victim.getLocation().getZ());
 				
-				Firework firework = (Firework) victim.getWorld().spawn(loc, Firework.class);
+				Firework firework = victim.getWorld().spawn(loc, Firework.class);
 				FireworkMeta meta = firework.getFireworkMeta();
 				meta.addEffect(FireworkEffect.builder().flicker(false).trail(false).with(Type.BALL).withColor(Color.GREEN).build());
 				meta.setPower(0);
@@ -174,157 +156,146 @@ public class PlayerDamageListener implements Listener {
 		            }
 		        }.runTaskLater(Smash.getInstance(), 1);
 				
-				e.setDamage(0);
+				event.setDamage(0);
 			}
 		}
 		
-		if (e.getDamager() instanceof Arrow) {
-			Arrow a = (Arrow) e.getDamager();
-			if (a.getShooter() instanceof Player) {
-				Player player = (Player) a.getShooter();
+		if (event.getDamager() instanceof Arrow) {
+			Arrow arrow = (Arrow) event.getDamager();
+			if (arrow.getShooter() instanceof Player) {
+				Player player = (Player) arrow.getShooter();
 				if (victim.equals(player)) {
-					e.setCancelled(true);
+					event.setCancelled(true);
 					return;
 				}
 				victim.setVelocity(player.getLocation().getDirection().setY(0).normalize().multiply(victim.getLevel() / 10));
-				victim.setLevel(victim.getLevel() + (int) e.getDamage());
+				victim.setLevel(victim.getLevel() + (int) event.getDamage());
 				ScoreboardManager.updateKB(victim);
-				e.setDamage(0);
+				event.setDamage(0);
 				
 				SmashPlayer smashVictim = SmashCore.players.get(victim);
 				smashVictim.setLastHitFrom(player);
 				smashVictim.setLastHitWeapon("Bow");
-				
+
 				return;
 			}
-			
-			//victim.setVelocity(a.getLocation().getDirection().setY(0).normalize().multiply(victim.getLevel() / 10));
-			victim.setVelocity(a.getLocation().getDirection().setY(0).normalize().multiply(victim.getLevel() / 10));
-			victim.setLevel(victim.getLevel() + (int) e.getDamage());
+
+			victim.setVelocity(arrow.getLocation().getDirection().setY(0).normalize().multiply(victim.getLevel() / 10));
+			victim.setLevel(victim.getLevel() + (int) event.getDamage());
 			ScoreboardManager.updateKB(victim);
-			e.setDamage(0);
-			
+			event.setDamage(0);
+
 			try {
-				Player player = (Player) a.getShooter();
+				Player player = (Player) arrow.getShooter();
 
 				SmashPlayer smashVictim = SmashCore.players.get(victim);
 
 				smashVictim.setLastHitFrom(player);
-				smashVictim.setLastHitWeapon(a.getName());
+				smashVictim.setLastHitWeapon(arrow.getName());
 			} catch (ClassCastException ex) {
 
 			}
-			
+
 			return;
 		}
-		
-		if (e.getDamager() instanceof Snowball) {
-			Snowball ball = (Snowball) e.getDamager();
+
+		if (event.getDamager() instanceof Snowball) {
+			Snowball ball = (Snowball) event.getDamager();
 			Player player = (Player) ball.getShooter();
 			if (victim.equals(player)) {
-				e.setCancelled(true);
+				event.setCancelled(true);
 				return;
 			}
 			SmashPlayer p = SmashCore.players.get(player);
 			SmashPlayer smashVictim = SmashCore.players.get(victim);
-			
+
 			smashVictim.setLastHitFrom(player);
-			//smashVictim.setLastHitWeapon(ball.getName());
-			
+
 			if (p.getKit() instanceof Blink) {
 				Location loc = player.getLocation();
 				player.teleport(victim.getLocation());
 				victim.teleport(loc);
 				player.sendMessage(ChatColor.GREEN + "You switched with " + victim.getName() + "!");
 				victim.sendMessage(ChatColor.RED + "You got switched with " + player.getName() + "!");
-				
+
 				smashVictim.setLastHitWeapon("Switcher");
 			}
-			
+
 			if (p.getKit() instanceof Shadow) {
 				Location loc = player.getLocation();
 				player.teleport(victim.getLocation());
 				victim.teleport(loc);
 				player.sendMessage(ChatColor.GREEN + "You switched with " + victim.getName() + "!");
 				victim.sendMessage(ChatColor.RED + "You got switched with " + player.getName() + "!");
-				
+
 				smashVictim.setLastHitWeapon("Switcher");
 			}
-			
+
 			if (p.getKit() instanceof Metoo) {
 				victim.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 20 * 8, 1));
 				victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 2, 1));
 				victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 8, 1));
-				victim.sendMessage(ChatColor.RED + "You were hit by " + player.getName() + "\'s" + ChatColor.DARK_AQUA + " Psychic Orb" + ChatColor.RED + "!");
+				victim.sendMessage(ChatColor.RED + "You were hit by " + player.getName() + "'s" + ChatColor.DARK_AQUA + " Psychic Orb" + ChatColor.RED + "!");
 				player.sendMessage(ChatColor.GREEN + "You hit " + victim.getName() + " with your " + ChatColor.DARK_AQUA + "Psychic Orb" + ChatColor.GREEN + "!");
-				
+
 				smashVictim.setLastHitWeapon("Psychic Orb");
-				
-				
+
+
 				Location loc = new Location(victim.getWorld(), victim.getLocation().getX(), victim.getLocation().getY() + 1, victim.getLocation().getZ());
-				
+
 				Firework firework = (Firework) victim.getWorld().spawn(loc, Firework.class);
 				FireworkMeta meta = firework.getFireworkMeta();
 				meta.addEffect(FireworkEffect.builder().flicker(false).trail(false).with(Type.BALL).withColor(Color.PURPLE).build());
 				meta.setPower(0);
 				firework.setFireworkMeta(meta);
-				
+
 				new BukkitRunnable() {
-		            public void run() {
-		                firework.detonate();
-		            }
-		        }.runTaskLater(Smash.getInstance(), 1);
-				
-				
+					public void run() {
+						firework.detonate();
+					}
+				}.runTaskLater(Smash.getInstance(), 1);
+
 			}
 		}
-		
-		if (!(e.getDamager() instanceof Player)) {
+
+		if (!(event.getDamager() instanceof Player)) {
 			return;
 		}
-		
-		Player attacker = (Player) e.getDamager();
-		
-		victim.setLevel(victim.getLevel() + (int) e.getDamage());
+
+		Player attacker = (Player) event.getDamager();
+
+		victim.setLevel(victim.getLevel() + (int) event.getDamage());
 		ScoreboardManager.updateKB(victim);
-		
-		//victim.setVelocity(victim.getVelocity().multiply((victim.getLevel())));
-		//victim.setVelocity(attacker.getLocation().getDirection().multiply(victim.getLevel() / 50));
-		
+
 		SmashPlayer smashVictim = SmashCore.players.get(victim);
 		smashVictim.setLastHitFrom(attacker);
-		//ItemMeta meta = attacker.getItemInHand().getItemMeta();
-		//meta.setsetDisplayName(ChatColor.WHITE + attacker.getItemInHand().getType().toString());
 		try {
-			String arr[] = attacker.getItemInHand().getItemMeta().getDisplayName().split("");
-			String name = "";
+			String[] arr = attacker.getItemInHand().getItemMeta().getDisplayName().split("");
+			StringBuilder name = new StringBuilder();
 			for (int i = 4; i < arr.length; i++) {
-				name += arr[i];
+				name.append(arr[i]);
 			}
-			smashVictim.setLastHitWeapon(name);
+			smashVictim.setLastHitWeapon(name.toString());
 		} catch (NullPointerException ex) {
 			smashVictim.setLastHitWeapon("Fist");
 		}
-		
+
 		if (attacker.getItemInHand().getType() == Material.IRON_AXE) {
 			victim.setVelocity(attacker.getLocation().getDirection().setY(0).normalize().multiply(((victim.getLevel() / 10) + 5) * 2));
-			e.setDamage(0);
+			event.setDamage(0);
 			return;
 		}
-		
+
 		if (attacker.getItemInHand().getType() == Material.STICK) {
-			victim.setVelocity(attacker.getLocation().getDirection().setY(0).normalize().multiply(((victim.getLevel() / 10) + 2) * 1.25));
-			e.setDamage(0);
+			victim.setVelocity(attacker.getLocation().getDirection().setY(0).normalize().multiply(((victim.getLevel() / 10.0) + 2) * 1.25));
+			event.setDamage(0);
 			ItemStack bat = attacker.getInventory().getItemInHand();
 			bat.setAmount(bat.getAmount() - 1);
 			attacker.getInventory().setItemInHand(bat);
 			return;
 		}
-		
+
 		victim.setVelocity(attacker.getLocation().getDirection().setY(0).normalize().multiply(victim.getLevel() / 10));
-		e.setDamage(0);
-		
-		//victim.setVelocity(victim.getLocation().getDirection().multiply(-1 * (victim.getLevel() / 20)));
-		
+		event.setDamage(0);
 	}
 }

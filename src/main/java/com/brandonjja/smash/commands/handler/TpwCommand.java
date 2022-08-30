@@ -18,20 +18,22 @@ public class TpwCommand extends SmashCommand {
 		if (!player.isOp()) {
 			return false;
 		}
+
 		if (args.length >= 1) {
-			String name = "";
+			StringBuilder name = new StringBuilder();
 			for (int i = 0; i < args.length; i++) {
-				name += args[i];
+				name.append(args[i]);
 				if (i != args.length - 1) {
-					name += " ";
+					name.append(" ");
 				}
 			}
-			name = name.toLowerCase();
-			String worldPath = getFilePath(name);
+
+			String worldPath = getFilePath(name.toString().toLowerCase());
 			if (worldPath == null) {
-				player.sendMessage("Cannot find a world with the name: " + name);
+				player.sendMessage("Cannot find a world with the name: " + name.toString().toLowerCase());
 				return true;
 			}
+
 			try {
 				World world = Bukkit.getWorld(worldPath);
 				player.teleport(new Location(world, world.getSpawnLocation().getX(), world.getSpawnLocation().getY(), world.getSpawnLocation().getZ()));

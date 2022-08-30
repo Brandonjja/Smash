@@ -23,7 +23,7 @@ public class Game {
 	private static boolean win = false;
 	private static boolean playing = false;
 	
-	private static int itemSpawnDelay = 40; // Time between new items spawning around the map (seconds)
+	private static final int ITEM_SPAWN_DELAY = 40; // Time between new items spawning around the map (seconds)
 	
 	private static int loopID = -1;
 	
@@ -71,13 +71,10 @@ public class Game {
 	}
 	
 	private static void runGameLoop() {
-		loopID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Smash.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				SmashWorld.spawnItem();
-				fixSlabs();
-			}
-		}, 20L * 10, 20L * itemSpawnDelay);
+		loopID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Smash.getInstance(), () -> {
+			SmashWorld.spawnItem();
+			fixSlabs();
+		}, 20L * 10, 20L * ITEM_SPAWN_DELAY);
 	}
 	
 	private static void fixSlabs() {
@@ -92,14 +89,7 @@ public class Game {
 			safe.add(loc);
 		}
 		
-		/*for (Entity entity : player.getLocation().getChunk().getEntities()) {
-			Location loc = entity.getLocation();
-			if (loc.getWorld().getBlockAt(loc).getType() == Material.STEP) {
-				safe.add(loc);
-			}
-		}*/
-		
-		boolean needToUpdate[] = new boolean[SmashWorld.slabLoc.size()];
+		boolean[] needToUpdate = new boolean[SmashWorld.slabLoc.size()];
 		int ctr = 0;
 		
 		for (Location l : SmashWorld.slabLoc) {
@@ -120,25 +110,13 @@ public class Game {
 		for (int i = 0; i < SmashWorld.slabLoc.size(); i++) {
 			if (needToUpdate[i]) {
 				SmashWorld.slabLoc.get(i).getBlock().setType(Material.AIR);
-				//Bukkit.getPlayer("Brandonjja").sendMessage("Fixed at: " + SmashWorld.slabLoc.get(i).getBlockX() + " " + SmashWorld.slabLoc.get(i).getBlockZ());
 			}
 		}
 	}
 	
-	/*private static boolean isSafe() {
-		List<Location> safe = new ArrayList<>();
-		
-		for (Location l : SmashWorld.slabLoc) {
-			for (Location safeL : safe) {
-				if (l.getX() == safeL.getX() && l.getY() == safeL.getY() && l.getZ() == safeL.getZ()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}*/
-	
-	/** Checks if a player has won the game */
+	/**
+	 * Checks if a player has won the game
+	 */
 	public static void checkEndGame() {
 		List<Player> winners = new ArrayList<>();
 		for (Player pl : Bukkit.getOnlinePlayers()) {
@@ -167,15 +145,14 @@ public class Game {
 			Player winnerPlayer = winners.get(0);
 			winMsg = ChatColor.GOLD + winnerPlayer.getName() + " wins with a score of " + ScoreboardManager.getScore(winnerPlayer) + "!";
 		} else {
-			//String names = "";
-			StringBuilder names = new StringBuilder("");
+			StringBuilder names = new StringBuilder();
 			names.append(ChatColor.GOLD);
 			for (int i = 0; i < winners.size() - 1; i++) {
 				names.append(winners.get(i));
 				names.append(" and ");
 			}
 			names.append(winners.get(winners.size() - 1));
-			winMsg = names.toString() + " draw with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!";
+			winMsg = names + " draw with a score of " + ScoreboardManager.getScore(winners.get(0)) + "!";
 		}
 		
 		final String gameFinishedMsg = ChatColor.GOLD + "Game Finished!";
@@ -188,20 +165,16 @@ public class Game {
 			player.sendMessage(winMsg);
 		}
 		
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				SmashFileManager.deleteLobby();
-				SmashFileManager.createLobbyAndTeleport();
-				deleteMap();
-				SmashCore.currentMap = "lobby2";
-				win = false;
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					player.setLevel(1);
-					ScoreboardManager.updateKB(player);
-				}
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+			SmashFileManager.deleteLobby();
+			SmashFileManager.createLobbyAndTeleport();
+			deleteMap();
+			SmashCore.currentMap = "lobby2";
+			win = false;
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				player.setLevel(1);
+				ScoreboardManager.updateKB(player);
 			}
-
 		}, 20 * 8); // 20 Ticks * x seconds = Starts in x seconds
 	}
 	
@@ -221,17 +194,13 @@ public class Game {
 			ScoreboardManager.updateKB(player);
 		}
 		
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				String map = ((Player)Bukkit.getOnlinePlayers().toArray()[0]).getWorld().getName();
-				SmashFileManager.deleteLobby();
-				SmashFileManager.createLobbyAndTeleport();
-				deleteMap(map);
-				SmashCore.currentMap = "lobby2";
-				win = false;
-				
-			}
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+			String map = ((Player)Bukkit.getOnlinePlayers().toArray()[0]).getWorld().getName();
+			SmashFileManager.deleteLobby();
+			SmashFileManager.createLobbyAndTeleport();
+			deleteMap(map);
+			SmashCore.currentMap = "lobby2";
+			win = false;
 
 		}, 20);
 	}
@@ -260,7 +229,6 @@ public class Game {
 			SmashFileManager.deleteWorld(deleteFolder);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			return;
 		}
 	}
 	

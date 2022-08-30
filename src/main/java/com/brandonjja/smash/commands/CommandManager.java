@@ -20,29 +20,30 @@ import com.brandonjja.smash.commands.handler.WorldCommand;
 
 public class CommandManager implements CommandExecutor {
 	
-	private static Map<String, SmashCommand> map = new HashMap<>();
+	private static final Map<String, SmashCommand> COMMANDS = new HashMap<>();
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if (!(sender instanceof Player)) {
 			return false;
 		}
-		return map.get(commandLabel).execute((Player) sender, args);
+
+		return COMMANDS.get(commandLabel).execute((Player) sender, args);
 	}
 	
 	public static void registerCommands() {
 		
-		map.put("kit", new KitCommand());
-		map.put("kits", new KitCommand());
-		map.put("speed", new SpeedCommand());
-		map.put("world", new WorldCommand());
-		map.put("start", new StartCommand());
-		map.put("tpw", new TpwCommand());
-		map.put("end", new EndCommand());
-		map.put("maps", new MapsCommand());
-		map.put("setspawn", new SetSpawnCommand());
-		
-		for (String cmd : map.keySet()) {
+		COMMANDS.put("kit", new KitCommand());
+		COMMANDS.put("kits", new KitCommand());
+		COMMANDS.put("speed", new SpeedCommand());
+		COMMANDS.put("world", new WorldCommand());
+		COMMANDS.put("start", new StartCommand());
+		COMMANDS.put("tpw", new TpwCommand());
+		COMMANDS.put("end", new EndCommand());
+		COMMANDS.put("maps", new MapsCommand());
+		COMMANDS.put("setspawn", new SetSpawnCommand());
+
+		for (String cmd : COMMANDS.keySet()) {
 			register(cmd, new CommandManager());
 		}
 	}
@@ -50,5 +51,5 @@ public class CommandManager implements CommandExecutor {
 	private static void register(String label, CommandExecutor command) {
 		Bukkit.getPluginCommand(label).setExecutor(command);
 	}
-	
+
 }

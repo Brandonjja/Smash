@@ -18,18 +18,14 @@ import com.brandonjja.smash.game.SmashPlayer;
 public class ItemPickUpListener implements Listener {
 	
 	@EventHandler
-	public void onPickUp(PlayerPickupItemEvent e) {
-		Item item = e.getItem();
-		Player player = e.getPlayer();
+	public void onPickUp(PlayerPickupItemEvent event) {
+		Item item = event.getItem();
+		Player player = event.getPlayer();
 		SmashPlayer smashPlayer = SmashCore.players.get(player);
 		Location loc = item.getLocation();
 		
-		//List<Block> safe = new ArrayList<>();
-		
-		//if (loc.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockY()));
-		
 		if (player.getInventory().contains(Material.IRON_AXE)) {
-			e.setCancelled(true);
+			event.setCancelled(true);
 			return;
 		}
 		
@@ -37,7 +33,7 @@ public class ItemPickUpListener implements Listener {
 			
 			/*if (item.getItemStack().getType() == Material.IRON_AXE) {
 				if (player.getInventory().contains(Material.IRON_AXE)) {
-					e.setCancelled(true);
+					event.setCancelled(true);
 					return;
 				}
 			}*/
@@ -50,21 +46,18 @@ public class ItemPickUpListener implements Listener {
 				}
 			}*/
 		}
-		
-		//ItemStack itemStack = new ItemStack(item.getItemStack());
+
 		ItemMeta meta;
 		meta = item.getItemStack().getItemMeta();
 		// HAMMER
 		if (item.getItemStack().getType() == Material.IRON_AXE) {
 			
 			if (player.getInventory().contains(Material.IRON_AXE)) {
-				e.setCancelled(true);
+				event.setCancelled(true);
 				return;
 			}
 			
 			meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Hammer");
-			//itemStack.setItemMeta(meta);
-			//item.setItemStack(itemStack);
 			item.getItemStack().setItemMeta(meta);
 			smashPlayer.saveInventory();
 			player.getInventory().clear();
@@ -72,19 +65,12 @@ public class ItemPickUpListener implements Listener {
 				player.getInventory().addItem(item.getItemStack());
 			}
 			
-			int cooldown = Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					//SmashPlayer p = SmashCore.players.get(player);
-					player.getInventory().clear();
-					//player.getInventory().setContents(p.getKit().getItems());
-					player.getInventory().setContents(smashPlayer.getInventory());
-					smashPlayer.addMissingItemsAfterHammer();
-					//player.getInventory().setHelmet(p.getKit().getHelmet());
-					player.updateInventory();
-				}
-
-			}, 20 * 5); // 20 Ticks * x seconds = Starts in x seconds
+			int cooldown = Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+				player.getInventory().clear();
+				player.getInventory().setContents(smashPlayer.getInventory());
+				smashPlayer.addMissingItemsAfterHammer();
+				player.updateInventory();
+			}, 20 * 5);
 			smashPlayer.setHammerCooldown(cooldown);
 		}
 		
@@ -104,8 +90,8 @@ public class ItemPickUpListener implements Listener {
 		if (item.getItemStack().getType() == Material.STICK) {
 			meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "Home-Run Bat");
 			item.getItemStack().setItemMeta(meta);
-			e.setCancelled(true);
-			e.getItem().remove();
+			event.setCancelled(true);
+			event.getItem().remove();
 			if (player.getInventory().containsAtLeast(item.getItemStack(), 1)) {
 				player.getInventory().addItem(item.getItemStack());
 			} else {
@@ -126,8 +112,8 @@ public class ItemPickUpListener implements Listener {
 		}
 		
 		item.getItemStack().setItemMeta(meta);
-		e.setCancelled(true);
-		e.getItem().remove();
+		event.setCancelled(true);
+		event.getItem().remove();
 		if (player.getInventory().containsAtLeast(item.getItemStack(), 1)) {
 			player.getInventory().addItem(item.getItemStack());
 		} else {

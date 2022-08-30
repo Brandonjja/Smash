@@ -26,10 +26,7 @@ public class SpeedCommand extends SmashCommand {
 				player.setFlySpeed((float) num);
 				player.sendMessage(ChatColor.YELLOW + "Fly speed set to: " + ChatColor.GREEN + (num * 10));
 				return true;
-			} catch (NumberFormatException ex) {
-				return false;
 			} catch (IllegalArgumentException ex) {
-				// player.sendMessage(ChatColor.RED + "Please enter a number between 1-10 (inclusive)");
 				return false;
 			}
 		}

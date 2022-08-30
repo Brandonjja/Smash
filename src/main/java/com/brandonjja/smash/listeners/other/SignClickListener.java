@@ -1,9 +1,5 @@
 package com.brandonjja.smash.listeners.other;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -11,15 +7,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class SignClickListener implements Listener {
 	
-	private final List<String> kits = new ArrayList<>(Arrays.asList("blink", "metoo", "pika", "toshi", "jigglyo", "shadow"
-			));
+	private static final List<String> KITS = Arrays.asList("blink", "metoo", "pika", "toshi", "jigglyo", "shadow");
 	
 	@EventHandler
-	public void onSignClick(PlayerInteractEvent e) {
-		Player player = e.getPlayer();
-		Block block = (Block) e.getClickedBlock();
+	public void onSignClick(PlayerInteractEvent event) {
+		Player player = event.getPlayer();
+		Block block = event.getClickedBlock();
 		if (block != null && block.getState() instanceof Sign) {
 			Sign sign = (Sign) block.getState();
 
@@ -27,7 +25,7 @@ public class SignClickListener implements Listener {
 				return;
 			}
 
-			if (kits.contains(sign.getLine(2).toLowerCase())) {
+			if (KITS.contains(sign.getLine(2).toLowerCase())) {
 				assignKit(player, sign.getLine(2));
 			}
 		}

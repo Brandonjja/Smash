@@ -39,7 +39,6 @@ public class SmashPlayer {
 	public SmashPlayer(Player player) {
 		this.player = player;
 		this.kit = new Blink();
-		//this.addKitItems();
 		this.giveKitItems();
 	}
 	
@@ -73,7 +72,6 @@ public class SmashPlayer {
 		this.knockback = knockback;
 		this.player.setLevel(knockback);
 		this.player.setExp(0.99f);
-		//this.player.setExp(((float)knockback % 100) / 100);
 	}
 	
 	public boolean hasJump() {
@@ -90,9 +88,9 @@ public class SmashPlayer {
 			firstJump = true;
 		}
 		if (kit instanceof Jigglyo) {
-			player.setExp(player.getExp() - (1 / (float) ( ((Jigglyo)kit).getJumps() + 5)) );
+			player.setExp(player.getExp() - (1 / (float) ((kit).getJumps() + 5)));
 			firstJump = true;
-			if (((Jigglyo)kit).getMiniJumps() == 0) {
+			if (((Jigglyo) kit).getMiniJumps() == 0) {
 				player.setExp(0f);
 			}
 			return;
@@ -151,7 +149,6 @@ public class SmashPlayer {
 			if (!player.getInventory().contains(item.getType())) {
 				item.setAmount(1);
 				player.getInventory().addItem(item);
-				player.sendMessage("added " + item.getType());
 			}
 		}
 		player.updateInventory();
@@ -208,8 +205,6 @@ public class SmashPlayer {
 		player.getInventory().clear();
 		for (int i : inventorySlot.keySet()) {
 			if (inventorySlot.get(i).getAmount() == 0) {
-				/*ItemStack dupeFix = new ItemStack(inventorySlot.get(i).getType(), 1);
-				inventorySlot.put(i, dupeFix);*/
 				inventorySlot.get(i).setAmount(1); // Fixes dupe bug where you could get negative pearls, that multiply
 			}
 			player.getInventory().setItem(i, inventorySlot.get(i));
@@ -218,9 +213,11 @@ public class SmashPlayer {
 		player.updateInventory();
 	}
 	
-	/** Returns the next empty slot available, omitting slots where a kit item on cool-down is supposed to go */
+	/**
+	 * Returns the next empty slot available, omitting slots where a kit item on cool-down is supposed to go
+	 */
 	public int getNextSlot() {
-		for (Integer i = 0; i < 36; i++) {
+		for (int i = 0; i < 36; i++) {
 			if (!inventorySlot.containsKey(i) && player.getInventory().getItem(i) == null) {
 				return i;
 			}
@@ -247,27 +244,23 @@ public class SmashPlayer {
 	 * @param slot the slot of the item being used
 	 */
 	public void runItemTimer(Material material, String itemName, int time, int slot) {
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				if (player.getInventory().contains(Material.IRON_AXE)) {
-					return;
-				}
-				ItemStack item = new ItemStack(material, 1);
-				ItemMeta meta = item.getItemMeta();
-				meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + itemName);
-				item.setItemMeta(meta);
-				if (getKit().canGiveItem(material) && !player.getInventory().contains(item)) {
-					player.getInventory().setItem(slot, item);
-				} else {
-					if (!player.getInventory().contains(item)) {
-						player.getInventory().setItem(slot, item);
-					}
-				}
-				getKit().setCanGiveItem(material, true);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+			if (player.getInventory().contains(Material.IRON_AXE)) {
+				return;
 			}
-
-		}, 20 * time);
+			ItemStack item = new ItemStack(material, 1);
+			ItemMeta meta = item.getItemMeta();
+			meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + itemName);
+			item.setItemMeta(meta);
+			if (getKit().canGiveItem(material) && !player.getInventory().contains(item)) {
+				player.getInventory().setItem(slot, item);
+			} else {
+				if (!player.getInventory().contains(item)) {
+					player.getInventory().setItem(slot, item);
+				}
+			}
+			getKit().setCanGiveItem(material, true);
+		}, 20L * time);
 	}
 	
 	/**
@@ -279,7 +272,7 @@ public class SmashPlayer {
 	 */
 	public void sendKillMessage(Player victim, Player killer, String weapon) {
 		SmashPlayer smashPlayer = SmashCore.players.get(victim);
-		StringBuilder message = new StringBuilder("");
+		StringBuilder message = new StringBuilder();
 		message.append(ChatColor.GOLD)
 		.append(victim.getName())
 		.append("(")
@@ -300,7 +293,7 @@ public class SmashPlayer {
 		.append(killer.getName())
 		.append("(")
 		.append(SmashCore.players.get(killer).getKit().getName())
-		.append(")\'s ")
+		.append(")'s ")
 		.append(ChatColor.DARK_AQUA)
 		.append(this.weapon).toString();
 		

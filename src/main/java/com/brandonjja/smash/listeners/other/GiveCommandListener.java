@@ -11,29 +11,29 @@ import net.md_5.bungee.api.ChatColor;
 public class GiveCommandListener implements Listener{
 	
 	@EventHandler
-	public void onGiveCommand(PlayerCommandPreprocessEvent e) {
-		if (e.getMessage().startsWith("/give ")) {
-			String args[] = e.getMessage().split(" ");
+	public void onGiveCommand(PlayerCommandPreprocessEvent event) {
+		if (event.getMessage().startsWith("/give ")) {
+			String[] args = event.getMessage().split(" ");
 			if (args.length == 3) {
-				e.setCancelled(true);
+				event.setCancelled(true);
 				try {
-				e.getPlayer().getInventory().addItem(new ItemStack(Material.matchMaterial(args[2].replace("minecraft:", ""))));
+				event.getPlayer().getInventory().addItem(new ItemStack(Material.matchMaterial(args[2].replace("minecraft:", ""))));
 				} catch (NullPointerException ex) {
-					String itemName[] = args[2].replace("minecraft:", "").split(":");
+					String[] itemName = args[2].replace("minecraft:", "").split(":");
 					if (itemName.length == 2) {
 						try {
 							short dur = Short.parseShort(itemName[1]);
 							ItemStack item = new ItemStack(Material.matchMaterial(itemName[0]));
 							item.setDurability(dur);
-							e.getPlayer().getInventory().addItem(item);
+							event.getPlayer().getInventory().addItem(item);
 						} catch (NullPointerException | NumberFormatException ex2) {
 							ex2.printStackTrace();
-							e.getPlayer().sendMessage(ChatColor.RED + "An error has occured.");
+							event.getPlayer().sendMessage(ChatColor.RED + "An error has occurred.");
 							return;
 						}
 					}
 				}
-				e.getPlayer().sendMessage("Given [" + args[2].replace("_", " ").replace("minecraft:", "") + "] * 1 to " + e.getPlayer().getName());
+				event.getPlayer().sendMessage("Given [" + args[2].replace("_", " ").replace("minecraft:", "") + "] * 1 to " + event.getPlayer().getName());
 			} else if (args.length == 4) {
 				int items;
 				try {
@@ -41,27 +41,26 @@ public class GiveCommandListener implements Listener{
 				} catch (NumberFormatException ex) {
 					return;
 				}
-				e.setCancelled(true);
+				event.setCancelled(true);
 				try {
-					e.getPlayer().getInventory().addItem(new ItemStack(Material.matchMaterial(args[2].replace("minecraft:", "")), items));
+					event.getPlayer().getInventory().addItem(new ItemStack(Material.matchMaterial(args[2].replace("minecraft:", "")), items));
 					} catch (NullPointerException ex) {
-						String itemName[] = args[2].replace("minecraft:", "").split(":");
+						String[] itemName = args[2].replace("minecraft:", "").split(":");
 						if (itemName.length == 2) {
 							try {
 								short dur = Short.parseShort(itemName[1]);
 								ItemStack item = new ItemStack(Material.matchMaterial(itemName[0]), items);
 								item.setDurability(dur);
-								e.getPlayer().getInventory().addItem(item);
+								event.getPlayer().getInventory().addItem(item);
 							} catch (NullPointerException | NumberFormatException ex2) {
 								ex2.printStackTrace();
-								e.getPlayer().sendMessage(ChatColor.RED + "An error has occured.");
+								event.getPlayer().sendMessage(ChatColor.RED + "An error has occurred.");
 								return;
 							}
 						}
 					}
-				//e.getPlayer().getInventory().addItem(new ItemStack(Material.matchMaterial(args[2].replace("minecraft:", "")), items));
-				e.getPlayer().sendMessage(
-						"Given [" + args[2].replace("_", " ").replace("minecraft:", "") + "] * " + items + " to " + e.getPlayer().getName());
+				event.getPlayer().sendMessage(
+						"Given [" + args[2].replace("_", " ").replace("minecraft:", "") + "] * " + items + " to " + event.getPlayer().getName());
 
 			}
 		}

@@ -22,14 +22,14 @@ import com.brandonjja.smash.SmashCore;
 
 public class SmashWorld {
 	
-	static List<Block> type = new ArrayList<Block>();
-	static List<Location> itemLoc = new ArrayList<Location>();
-	static List<Location> slabLoc = new ArrayList<Location>();
+	static List<Block> type = new ArrayList<>();
+	static List<Location> itemLoc = new ArrayList<>();
+	static List<Location> slabLoc = new ArrayList<>();
 	
 	public static void updateBlocks() {
-		type = new ArrayList<Block>();
-		itemLoc = new ArrayList<Location>();
-		slabLoc = new ArrayList<Location>();
+		type = new ArrayList<>();
+		itemLoc = new ArrayList<>();
+		slabLoc = new ArrayList<>();
 		
 		World world = Bukkit.getWorld(SmashCore.currentMap);
 		
@@ -52,9 +52,6 @@ public class SmashWorld {
 						if (block.getType() == Material.WOOL) {
 							Location blockLoc = block.getLocation();
 							Location loc = new Location(world, blockLoc.getX(), blockLoc.getBlockY() - 1, blockLoc.getZ());
-							/*blockLoc.setX(blockLoc.getBlockX());
-							blockLoc.setY(blockLoc.getBlockY());
-							blockLoc.setZ(blockLoc.getBlockZ());*/
 
 							if (loc.getBlock().getType() == Material.NETHER_FENCE) {
 								blockLoc.setY(loc.getBlockY() + 1);
@@ -71,37 +68,8 @@ public class SmashWorld {
 					}
 				}
 			}
-			
-			/*for (BlockState block : chunk.getTileEntities()) { // get all the blocks somehow
-				if (block instanceof Wool) {
-					Bukkit.getPlayer("Brandonjja").sendMessage("block found");
-				}
-				if (block.getData().getItemType() == Material.WOOL) {
-					Bukkit.getPlayer("Brandonjja").sendMessage("block found2");
-				}
-				if (block.getBlock().getType().equals(Material.WOOL)) {
-					Bukkit.getPlayer("Brandonjja").sendMessage("block found3");
-				}
-				if (block instanceof Wool) {
-					
-					Location blockLoc = block.getBlock().getLocation();
-					Location loc = new Location(world, blockLoc.getX(), blockLoc.getBlockY() - 1, blockLoc.getZ());
-					
-					if (loc.getBlock().getType() == Material.NETHER_FENCE) {
-						type.add(block.getBlock());
-						itemLoc.add(blockLoc);
-						block.getBlock().setType(Material.AIR);
-						block.update();
-						
-						slabLoc.add(loc);
-						loc.getBlock().setType(Material.AIR);
-					}
-					
-				}
-			}*/
 		}
 		long end = System.currentTimeMillis();
-        Bukkit.getPlayer("Brandonjja").sendMessage((end - time) + "ms");
 	}
 	
 	public static void spawnItem() {

@@ -18,26 +18,29 @@ public class StartCommand extends SmashCommand {
 		if (!player.isOp()) {
 			return false;
 		}
+
 		if (args.length == 0) {
 			SmashFileManager.generateMap();
 			return true;
 		} else {
-			String mapName = "";
+			StringBuilder mapName = new StringBuilder();
 			for (int i = 0; i < args.length; i++) {
-				mapName += args[i];
+				mapName.append(args[i]);
 				if (i != args.length - 1) {
-					mapName += " ";
+					mapName.append(" ");
 				}
 			}
+
 			List<String> mapsList = new ArrayList<>(Maps.getMaps());
 			for (String map : mapsList) {
-				if (map.equalsIgnoreCase(mapName)) {
-					SmashFileManager.generateMap(mapName);
+				if (map.equalsIgnoreCase(mapName.toString())) {
+					SmashFileManager.generateMap(mapName.toString());
 					return true;
 				}
 			}
 			player.sendMessage(ChatColor.LIGHT_PURPLE + "[Smash] " + ChatColor.GRAY + "Map " + mapName + " not found!");
 		}
+
 		return true;
 	}
 

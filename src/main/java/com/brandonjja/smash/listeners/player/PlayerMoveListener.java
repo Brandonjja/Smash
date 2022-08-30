@@ -25,75 +25,69 @@ public class PlayerMoveListener implements Listener {
 
 	static int ctr = 0;
 	
-	private final static double JUMPVEL = (double) 0.42F;
-	
-	@SuppressWarnings("deprecation")
+	private final static double JUMPVEL = 0.42F;
+
 	@EventHandler
-	public void onSneak(PlayerToggleSneakEvent e) {
-		Player player = e.getPlayer();
+	public void onSneak(PlayerToggleSneakEvent event) {
+		Player player = event.getPlayer();
 		SmashPlayer smashPlayer = SmashCore.players.get(player);
-		if (e.isSneaking() && smashPlayer.getKit() instanceof Jigglyo && player.isOnGround()) {
+		if (event.isSneaking() && smashPlayer.getKit() instanceof Jigglyo && player.isOnGround()) {
 			Jigglyo kit = (Jigglyo) smashPlayer.getKit();
-			int time = Bukkit.getScheduler().scheduleSyncRepeatingTask(Smash.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					if (player.getLevel() >= 2) {
-						if (!player.isOnGround()) {
-							((Jigglyo)smashPlayer.getKit()).cancelSneakTimer();
-						} else {
-							player.setLevel(player.getLevel() - 1);
-							ScoreboardManager.updateKB(player);
-						}
+			int time = Bukkit.getScheduler().scheduleSyncRepeatingTask(Smash.getInstance(), () -> {
+				if (player.getLevel() >= 2) {
+					if (!player.isOnGround()) {
+						((Jigglyo) smashPlayer.getKit()).cancelSneakTimer();
 					} else {
-						player.setLevel(1);
+						player.setLevel(player.getLevel() - 1);
+						ScoreboardManager.updateKB(player);
 					}
+				} else {
+					player.setLevel(1);
 				}
-			}, 10L, 10L); // 0 Tick initial delay, 20 * x seconds between repeats
+			}, 10L, 10L);
 			kit.setSneakTimer(time);
-		} else if (!e.isSneaking() && smashPlayer.getKit() instanceof Jigglyo) {
-			((Jigglyo)smashPlayer.getKit()).cancelSneakTimer();
+		} else if (!event.isSneaking() && smashPlayer.getKit() instanceof Jigglyo) {
+			((Jigglyo) smashPlayer.getKit()).cancelSneakTimer();
 		}
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	@EventHandler
-	public void onMove(PlayerMoveEvent e) {
-		Player player = e.getPlayer();
-		SmashPlayer p = SmashCore.players.get(player);
-		
+	public void onMove(PlayerMoveEvent event) {
+		Player player = event.getPlayer();
+		SmashPlayer smashPlayer = SmashCore.players.get(player);
+
 		player.setHealth(20);
 		player.setFoodLevel(20);
-		
+
 		if (player.getLocation().getY() < 2) {
 			player.teleport(player.getWorld().getSpawnLocation());
 			for (PotionEffect effect : player.getActivePotionEffects()) {
 				player.removePotionEffect(effect.getType());
 			}
-			p.giveKitItems();
-			p.resetJumps();
-			p.setKnockback(1);
-			
+			smashPlayer.giveKitItems();
+			smashPlayer.resetJumps();
+			smashPlayer.setKnockback(1);
+
 			ScoreboardManager.updateKB(player);
-			ScoreboardManager.updateScore(p.getLastHitFrom());
-			//ScoreboardManager.updateScore(player, -1);
-			
-			p.sendKillMessage(player, p.getLastHitFrom(), p.getLastHitWeapon());
-			p.setLastHitFrom(null);
-			p.setLastHitWeapon(null);
-			
-			p.getKit().setCanGiveItem(null, false);
-			
+			ScoreboardManager.updateScore(smashPlayer.getLastHitFrom());
+
+			smashPlayer.sendKillMessage(player, smashPlayer.getLastHitFrom(), smashPlayer.getLastHitWeapon());
+			smashPlayer.setLastHitFrom(null);
+			smashPlayer.setLastHitWeapon(null);
+
+			smashPlayer.getKit().setCanGiveItem(null, false);
+
 			if (Game.getWin()) {
 				return;
 			}
-			
-			p.cancelHammerCooldown();
-			
+
+			smashPlayer.cancelHammerCooldown();
+
 			Game.checkEndGame();
 		}
-		
-		if (p.getKit() instanceof Toshi) {
-			Toshi kit = (Toshi) p.getKit();
+
+		if (smashPlayer.getKit() instanceof Toshi) {
+			Toshi kit = (Toshi) smashPlayer.getKit();
 			if (kit.usedPound()) {
 				if (player.isOnGround()) {
 					kit.setUsedPound(false);
@@ -101,73 +95,41 @@ public class PlayerMoveListener implements Listener {
 				}
 			}
 		}
-		
-		/*Block b = player.getLocation().getBlock();
-		if (b.getType() != Material.AIR
-                || b.getRelative(BlockFace.DOWN).getType() != Material.AIR) {
-            p.resetJumps();
-            //player.sendMessage("r");
-            return;
-        }*/
-		
-		/*if (p.getJumpsLeft() + 1 == p.getKit().getJumps()) {
-			return;
-		}*/
-		
+
 		// https://www.spigotmc.org/threads/how-to-check-if-player-is-jumping.367036/
 		Vector velocity = player.getVelocity();
 		if (player.getLocation().getBlock().getType() != Material.LADDER && Double.compare(velocity.getY(), JUMPVEL) == 0) {
-			p.resetJumps();
-			if (p.getKit() instanceof Pika) {
-				Pika pika = (Pika) p.getKit();
+			smashPlayer.resetJumps();
+			if (smashPlayer.getKit() instanceof Pika) {
+				Pika pika = (Pika) smashPlayer.getKit();
 				pika.setLunge(true);
 			}
-			if (p.getKit() instanceof Shadow) {
-				Shadow shadow = (Shadow) p.getKit();
+			if (smashPlayer.getKit() instanceof Shadow) {
+				Shadow shadow = (Shadow) smashPlayer.getKit();
 				shadow.setLunge(true);
 			}
 			return;
 		}
-		
-		if (e.getFrom().getY() == e.getTo().getY()) {
-			Location loc = new Location(e.getTo().getWorld(), e.getTo().getBlockX(), e.getTo().getBlockY(), e.getTo().getBlockZ());
+
+		if (event.getFrom().getY() == event.getTo().getY()) {
+			Location loc = new Location(event.getTo().getWorld(), event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
 			if (player.getWorld().getBlockAt(loc.subtract(0, 1, 0)).getType() != Material.AIR) {
-				if (p.getKit() instanceof Pika) {
-					Pika pika = (Pika) p.getKit();
+				if (smashPlayer.getKit() instanceof Pika) {
+					Pika pika = (Pika) smashPlayer.getKit();
 					pika.setLunge(true);
 				}
-				if (p.getKit() instanceof Shadow) {
-					((Shadow) p.getKit()).setLunge(true);
+				if (smashPlayer.getKit() instanceof Shadow) {
+					((Shadow) smashPlayer.getKit()).setLunge(true);
 				}
-				if (p.getFirstJump()) {
-					p.setFirstJump(false);
+				if (smashPlayer.getFirstJump()) {
+					smashPlayer.setFirstJump(false);
 					return;
 				}
-				p.resetJumps();
+				smashPlayer.resetJumps();
 				return;
 			}
 		}
-		
+
 		ctr++;
-		
-		/*if (p.getFirstJump()) {
-			//player.sendMessage("fj");
-			p.setFirstJump(false);
-			return;
-		}
-		
-		p.setFirstJump(true);*/
-		
-		/*if (player.isOnGround()) {
-			p.resetJumps();
-		}*/
-		
-		/*if (player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
-			if (p.getFirstJump()) {
-				p.setFirstJump(false);
-				return;
-			}
-			p.resetJumps();
-		}*/
 	}
 }

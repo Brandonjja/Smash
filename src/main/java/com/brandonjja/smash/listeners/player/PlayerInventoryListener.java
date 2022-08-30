@@ -13,13 +13,13 @@ import com.brandonjja.smash.game.SmashPlayer;
 public class PlayerInventoryListener implements Listener {
 	
 	@EventHandler
-	public void onInventoryClose(InventoryCloseEvent e) {
-		SmashPlayer smashPlayer = SmashCore.players.get(e.getPlayer());
-		if (e.getPlayer().getInventory().contains(Material.IRON_AXE)) {
+	public void onInventoryClose(InventoryCloseEvent event) {
+		SmashPlayer smashPlayer = SmashCore.players.get(event.getPlayer());
+		if (event.getPlayer().getInventory().contains(Material.IRON_AXE)) {
 			return;
 		}
 		
-		if (e.getPlayer().getGameMode() == GameMode.CREATIVE) {
+		if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
 			return;
 		}
 		
@@ -27,9 +27,9 @@ public class PlayerInventoryListener implements Listener {
 	}
 	
 	@EventHandler
-	public void onDrop(PlayerDropItemEvent e) {
-		if (e.getPlayer().getGameMode() != GameMode.CREATIVE) {
-			e.setCancelled(true);
+	public void onDrop(PlayerDropItemEvent event) {
+		if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+			event.setCancelled(true);
 		}
 	}
 }

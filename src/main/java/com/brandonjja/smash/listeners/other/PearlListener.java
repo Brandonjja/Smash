@@ -21,49 +21,53 @@ import com.brandonjja.smash.kits.classes.Metoo;
 public class PearlListener implements Listener {
 	
 	@EventHandler
-	public void onPearl(ProjectileLaunchEvent e) {
-		if (e.getEntity().getType() == EntityType.ENDER_PEARL) {
-			if (!(e.getEntity().getShooter() instanceof Player)) {
+	public void onPearl(ProjectileLaunchEvent event) {
+		if (event.getEntity().getType() != EntityType.ENDER_PEARL) {
+			return;
+		}
+
+		if (!(event.getEntity().getShooter() instanceof Player)) {
+			return;
+		}
+
+		Player player = (Player) event.getEntity().getShooter();
+		Vector vector = player.getLocation().getDirection();
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), () -> {
+			SmashPlayer smashPlayer = SmashCore.players.get(player);
+			if (!(smashPlayer.getKit() instanceof Metoo)) {
 				return;
 			}
-			Player player = (Player) e.getEntity().getShooter();
-			Vector vector = player.getLocation().getDirection();
-			Bukkit.getScheduler().scheduleSyncDelayedTask(Smash.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					SmashPlayer smashPlayer = SmashCore.players.get(player);
-					if (!(smashPlayer.getKit() instanceof Metoo)) {
-						return;
-					}
-					if (!((Metoo) smashPlayer.getKit()).canTeleport()) {
-						((Metoo)smashPlayer.getKit()).setTeleport(true);
-						return;
-					}
-					EnderPearl ep = (EnderPearl) e.getEntity();
-					Location loc = ep.getLocation();
-					loc.setDirection(vector);
-					ep.remove();
-					//loc.setY(loc.getY() + 1);
-					if (!loc.getWorld().getBlockAt(loc).isEmpty()) {
-						loc.setY(loc.getY() + 1);
-					}
-					//if (Bukkit.getWorld(loc.getWorld().getName()).getbl)
-					player.teleport(loc);
-				}
 
-			}, 8); // 20 Ticks * x seconds = Starts in x seconds
-		}
+			if (!((Metoo) smashPlayer.getKit()).canTeleport()) {
+				((Metoo) smashPlayer.getKit()).setTeleport(true);
+				return;
+			}
+
+			EnderPearl enderPearl = (EnderPearl) event.getEntity();
+			Location pearlLocation = enderPearl.getLocation();
+			pearlLocation.setDirection(vector);
+			enderPearl.remove();
+			if (!pearlLocation.getWorld().getBlockAt(pearlLocation).isEmpty()) {
+				pearlLocation.setY(pearlLocation.getY() + 1);
+			}
+
+			player.teleport(pearlLocation);
+		}, 8);
 	}
 	
 	@EventHandler
-	public void onPearlHit(PlayerTeleportEvent e) {
-		if (e.getCause() == TeleportCause.ENDER_PEARL) {
-			if (Game.inGame()) {
-				SmashPlayer smashPlayer = SmashCore.players.get(e.getPlayer());
-				if (smashPlayer.getKit() instanceof Metoo) {
-					((Metoo) smashPlayer.getKit()).setTeleport(false);
-				}
-			}
+	public void onPearlHit(PlayerTeleportEvent event) {
+		if (event.getCause() != TeleportCause.ENDER_PEARL) {
+			return;
+		}
+
+		if (!Game.inGame()) {
+			return;
+		}
+
+		SmashPlayer smashPlayer = SmashCore.players.get(event.getPlayer());
+		if (smashPlayer.getKit() instanceof Metoo) {
+			((Metoo) smashPlayer.getKit()).setTeleport(false);
 		}
 	}
 }
