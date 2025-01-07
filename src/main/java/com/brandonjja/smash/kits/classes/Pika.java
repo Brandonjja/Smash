@@ -15,102 +15,102 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import com.brandonjja.smash.kits.Kit;
 
 public class Pika extends Kit {
-	private static List<ItemStack> items;
-	private boolean lunge = true;
-	private boolean strike = true;
-	//private LightningStrike lightning = null;
-	private List<LightningStrike> lightning = new ArrayList<>();
 
-	public Pika() {
-		super("Pika", 2);
-	}
+    private static final List<ItemStack> ITEMS = new ArrayList<>();
 
-	@Override
-	public String getName() {
-		return super.name;
-	}
+    // Kit items
+    static {
+        ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
+        ItemStack rocket = new ItemStack(Material.FIREWORK);
+        ItemStack carrot = new ItemStack(Material.GOLDEN_CARROT);
+        ItemStack axe = new ItemStack(Material.WOOD_AXE);
 
-	@Override
-	public ItemStack[] getItems() {
-		return items.toArray(new ItemStack[0]);
-	}
-	
-	// Kit items
-	static {
-		items = new ArrayList<>();
-		ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
-		ItemStack rocket = new ItemStack(Material.FIREWORK);
-		ItemStack carrot = new ItemStack(Material.GOLDEN_CARROT);
-		ItemStack axe = new ItemStack(Material.WOOD_AXE);
+        ItemMeta meta = ironSword.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + ChatColor.BOLD.toString() + "Sword");
+        ironSword.setItemMeta(meta);
+        ironSword.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
 
-		ItemMeta meta = ironSword.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Sword");
-		ironSword.setItemMeta(meta);
-		ironSword.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+        meta = rocket.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + ChatColor.BOLD.toString() + "Double-Jump Rocket");
+        rocket.setItemMeta(meta);
 
-		meta = rocket.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Double-Jump Rocket");
-		rocket.setItemMeta(meta);
+        meta = carrot.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + ChatColor.BOLD.toString() + "Lunge");
+        carrot.setItemMeta(meta);
 
-		meta = carrot.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Lunge");
-		carrot.setItemMeta(meta);
+        meta = axe.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + ChatColor.BOLD.toString() + "Thunder Jolt");
+        axe.setItemMeta(meta);
+        axe.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
 
-		meta = axe.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Thunder Jolt");
-		axe.setItemMeta(meta);
-		axe.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+        ITEMS.add(ironSword);
+        ITEMS.add(rocket);
+        ITEMS.add(carrot);
+        ITEMS.add(axe);
+    }
 
-		items.add(ironSword);
-		items.add(rocket);
-		items.add(carrot);
-		items.add(axe);
-	}
-	
-	@Override
-	public ItemStack getHelmet() {
-		ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
-		LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
-		meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + super.name + " Helmet");
-		meta.setColor(Color.YELLOW);
-		helmet.setItemMeta(meta);
-		
-		helmet.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
-		
-		return helmet;
-	}
-	
-	public boolean canLunge() {
-		return lunge;
-	}
-	
-	public void setLunge(boolean lunge) {
-		this.lunge = lunge;
-	}
-	
-	public boolean canStrike() {
-		return strike;
-	}
-	
-	public void setStrike(boolean strike) {
-		this.strike = strike;
-	}
-	
-	public boolean getLightning(LightningStrike lightning) {
-		return this.lightning.contains(lightning);
-	}
-	
-	public void setLightning(LightningStrike lightning) {
-		this.lightning.add(lightning);
-	}
+    private final List<LightningStrike> lightning = new ArrayList<>();
 
-	@Override
-	public boolean canGiveItem(Material item) {
-		return false;
-	}
+    private boolean lunge = true;
+    private boolean strike = true;
 
-	@Override
-	public void setCanGiveItem(Material item, boolean cooldown) {
-		
-	}
+    public Pika() {
+        super("Pika", 2);
+    }
+
+    @Override
+    public String getName() {
+        return super.name;
+    }
+
+    @Override
+    public ItemStack[] getItems() {
+        return ITEMS.toArray(new ItemStack[0]);
+    }
+
+    @Override
+    public ItemStack getHelmet() {
+        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
+        LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + ChatColor.BOLD.toString() + super.name + " Helmet");
+        meta.setColor(Color.YELLOW);
+        helmet.setItemMeta(meta);
+
+        helmet.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+
+        return helmet;
+    }
+
+    public boolean canLunge() {
+        return lunge;
+    }
+
+    public void setLunge(boolean lunge) {
+        this.lunge = lunge;
+    }
+
+    public boolean canStrike() {
+        return strike;
+    }
+
+    public void setStrike(boolean strike) {
+        this.strike = strike;
+    }
+
+    public boolean getLightning(LightningStrike lightning) {
+        return this.lightning.contains(lightning);
+    }
+
+    public void setLightning(LightningStrike lightning) {
+        this.lightning.add(lightning);
+    }
+
+    @Override
+    public boolean canGiveItem(Material item) {
+        return false;
+    }
+
+    @Override
+    public void setCanGiveItem(Material item, boolean cooldown) {
+    }
 }

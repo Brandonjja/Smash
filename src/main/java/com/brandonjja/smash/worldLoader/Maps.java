@@ -5,9 +5,10 @@ import java.util.List;
 import com.brandonjja.smash.Smash;
 
 public class Maps {
-	private static List<String> maps = Smash.getInstance().getConfig().getStringList("maps");
+
+	private static final List<String> MAPS = Smash.getInstance().getConfig().getStringList("maps");
 	
 	public static List<String> getMaps() {
-		return maps;
+		return MAPS;
 	}
 }

@@ -7,12 +7,11 @@ import com.brandonjja.smash.game.Game;
 
 public class EndCommand extends SmashCommand {
 
-	@Override
-	public boolean execute(Player player, String[] args) {
-		if (player.isOp()) {
-			Game.forceEnd();
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean execute(Player player, String[] args) {
+        if (player.isOp()) {
+            Game.forceEnd();
+        }
+        return true;
+    }
 }

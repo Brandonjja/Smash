@@ -19,30 +19,31 @@ import com.brandonjja.smash.listeners.world.BlockListener;
 import com.brandonjja.smash.listeners.world.WeatherListener;
 
 public class EventManager {
-	public static void registerListeners() {
-		register(new BlockExplodeListener());
-		register(new BlockListener());
-		
-		register(new ItemPickUpListener());
-		register(new PearlListener());
-		
-		register(new PlayerConnectionListener());
-		register(new PlayerConsumeListener());
-		
-		register(new PlayerDamageListener());
-		
-		register(new PlayerInteractItemListener());
-		register(new PlayerInventoryListener());
-		
-		register(new PlayerMoveListener());
-		register(new SignClickListener());
-		
-		register(new WeatherListener());
-		
-		register(new GiveCommandListener());
-	}
-	
-	private static void register(Listener listener) {
-		Bukkit.getPluginManager().registerEvents(listener, Smash.getInstance());
-	}
+
+    public static void registerListeners() {
+        register(new BlockExplodeListener());
+        register(new BlockListener());
+
+        register(new ItemPickUpListener());
+        register(new PearlListener());
+
+        register(new PlayerConnectionListener());
+        register(new PlayerConsumeListener());
+
+        register(new PlayerDamageListener());
+
+        register(new PlayerInteractItemListener());
+        register(new PlayerInventoryListener());
+
+        register(new PlayerMoveListener());
+        register(new SignClickListener());
+
+        register(new WeatherListener());
+
+        register(new GiveCommandListener());
+    }
+
+    private static void register(Listener listener) {
+        Bukkit.getPluginManager().registerEvents(listener, Smash.getInstance());
+    }
 }

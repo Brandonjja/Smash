@@ -19,37 +19,36 @@ import com.brandonjja.smash.commands.handler.TpwCommand;
 import com.brandonjja.smash.commands.handler.WorldCommand;
 
 public class CommandManager implements CommandExecutor {
-	
-	private static final Map<String, SmashCommand> COMMANDS = new HashMap<>();
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (!(sender instanceof Player)) {
-			return false;
-		}
+    private static final Map<String, SmashCommand> COMMANDS = new HashMap<>();
 
-		return COMMANDS.get(commandLabel).execute((Player) sender, args);
-	}
-	
-	public static void registerCommands() {
-		
-		COMMANDS.put("kit", new KitCommand());
-		COMMANDS.put("kits", new KitCommand());
-		COMMANDS.put("speed", new SpeedCommand());
-		COMMANDS.put("world", new WorldCommand());
-		COMMANDS.put("start", new StartCommand());
-		COMMANDS.put("tpw", new TpwCommand());
-		COMMANDS.put("end", new EndCommand());
-		COMMANDS.put("maps", new MapsCommand());
-		COMMANDS.put("setspawn", new SetSpawnCommand());
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+        if (!(sender instanceof Player)) {
+            return false;
+        }
 
-		for (String cmd : COMMANDS.keySet()) {
-			register(cmd, new CommandManager());
-		}
-	}
+        return COMMANDS.get(commandLabel).execute((Player) sender, args);
+    }
 
-	private static void register(String label, CommandExecutor command) {
-		Bukkit.getPluginCommand(label).setExecutor(command);
-	}
+    public static void registerCommands() {
+        COMMANDS.put("kit", new KitCommand());
+        COMMANDS.put("kits", new KitCommand());
+        COMMANDS.put("speed", new SpeedCommand());
+        COMMANDS.put("world", new WorldCommand());
+        COMMANDS.put("start", new StartCommand());
+        COMMANDS.put("tpw", new TpwCommand());
+        COMMANDS.put("end", new EndCommand());
+        COMMANDS.put("maps", new MapsCommand());
+        COMMANDS.put("setspawn", new SetSpawnCommand());
+
+        for (String cmd : COMMANDS.keySet()) {
+            register(cmd, new CommandManager());
+        }
+    }
+
+    private static void register(String label, CommandExecutor command) {
+        Bukkit.getPluginCommand(label).setExecutor(command);
+    }
 
 }

@@ -3,21 +3,22 @@ package com.brandonjja.smash;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Smash extends JavaPlugin {
-	private static Smash INSTANCE;
 
-	@Override
-	public void onEnable() {
-		INSTANCE = this;
-		SmashCore.init();
-	}
+    private static Smash instance;
 
-	@Override
-	public void onDisable() {
-		INSTANCE = null;
-		SmashCore.shutdown();
-	}
+    @Override
+    public void onEnable() {
+        instance = this;
+        SmashCore.init();
+    }
 
-	public static Smash getInstance() {
-		return INSTANCE;
-	}
+    @Override
+    public void onDisable() {
+        instance = null;
+        SmashCore.shutdown();
+    }
+
+    public static Smash getInstance() {
+        return instance;
+    }
 }
